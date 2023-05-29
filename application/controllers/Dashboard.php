@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class DashboardController extends CI_Controller {
+class Dashboard extends CI_Controller {
 
 	/**
 	 * NOTES: 
@@ -28,7 +28,7 @@ class DashboardController extends CI_Controller {
 
 		if($dataToken['status'] == false)
         {
-			redirect(base_url().'index.php/LogoutController');die; // to LogoutController
+			redirect(base_url().'index.php/Logout');die; // to Logout
         }
 		else {
 			$userId    = $dataToken['data']->userId;
@@ -40,7 +40,7 @@ class DashboardController extends CI_Controller {
 					'name'  => $this->Dashboard_model->getManagerName($userId),
 				];
 	
-				$this->load->view('DashManagerView', $data); // to DashManagerView.php
+				$this->load->view('DashboardManager/index', $data); 
 			} 
 			elseif ($privilege == 'employee') {
 				$data = [
@@ -48,8 +48,20 @@ class DashboardController extends CI_Controller {
 					'name'  => $this->Dashboard_model->getEmployeeName($userId),
 				];
 	
-				$this->load->view('DashEmployeeView', $data); // to DashEmployeeView.php
+				$this->load->view('DashboardEmployee/index', $data); 
 			}
 		}
+	}
+
+	/**
+	 * Api - Session Check
+	 * ==========================
+	 */
+	public function sessionCheck()
+	{
+		$token = isset($_COOKIE['_jwttoken']) ? $_COOKIE['_jwttoken'] : null;
+        checkToken($token, true);
+
+		echo true;
 	}
 }

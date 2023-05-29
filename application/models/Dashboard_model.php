@@ -25,5 +25,4 @@ class Dashboard_model extends CI_Model
         $query = $this->db->get('employees');
 		return strtoupper(explode(" ",$query->first_row()->name)[0]);
     }
-
 }

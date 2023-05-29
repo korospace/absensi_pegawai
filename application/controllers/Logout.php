@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class LogoutController extends CI_Controller {
+class Logout extends CI_Controller {
 
 	/**
 	 * NOTES: 
@@ -20,7 +20,7 @@ class LogoutController extends CI_Controller {
         setcookie('_jwttoken','',-1,'/');
         unset($_COOKIE['_jwttoken']);
 
-		redirect(base_url().'index.php/LoginController');die; // to LoginController
+		redirect(base_url().'index.php/Login');die; // to Login
 	}
 
 }

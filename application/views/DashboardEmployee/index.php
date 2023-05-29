@@ -117,6 +117,8 @@
 
 	<!-- jQuery -->
 	<script src="<?= base_url('assets/js/plugins/jquery.min.js') ?>"></script>
+	<!-- jQuery Cookie -->
+	<script src="<?= base_url('assets/js/plugins/jquery.cookie.min.js') ?>"></script>
 	<!-- Bootstrap 4 -->
 	<script src="<?= base_url('assets/js/plugins/bootstrap.bundle.min.js') ?>"></script>
 	<!-- jquery-validation -->
@@ -130,8 +132,35 @@
 	<script src="<?= base_url('assets/js/showToastify.js') ?>"></script>
 	<!-- Loading Spinner -->
 	<script src="<?= base_url('assets/js/showLoadingSpinner.js') ?>"></script>
+	<!-- Error Server -->
+	<script src="<?= base_url('assets/js/showErrorServer.js') ?>"></script>
 
 	<script>
+		/**
+		 * Session Check
+		 */
+		let intervalCheckExp = null;
+
+		let checkExpired = function() { 
+			$.ajax({
+				type: "GET",
+				url: "<?php echo base_url() . 'index.php/Dashboard/sessionCheck'?>",
+				success:function(data) {
+					return true;
+				},
+				error:function(data) {
+					clearInterval(intervalCheckExp);
+					
+					showErrorServer(data);
+				}
+			});
+		}
+
+		intervalCheckExp = setInterval(checkExpired, 4000);
+
+		/**
+		 * Load Page
+		 */
 		function logout(el,event)
         {
 			event.preventDefault();
@@ -147,7 +176,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     showLoadingSpinner();
-                    window.location.replace("<?php echo base_url() . 'index.php/LogoutController'?>");
+                    window.location.replace("<?php echo base_url() . 'index.php/Logout'?>");
                 }
             })
         }

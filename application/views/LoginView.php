@@ -104,6 +104,8 @@
 	<script src="<?= base_url('assets/js/showToastify.js') ?>"></script>
 	<!-- Loading Spinner -->
 	<script src="<?= base_url('assets/js/showLoadingSpinner.js') ?>"></script>
+	<!-- Error Server -->
+	<script src="<?= base_url('assets/js/showErrorServer.js') ?>"></script>
 
 	<script>
 	$(function () {
@@ -148,7 +150,7 @@
 
 					$.ajax({
 						type: "POST",
-						url: "<?php echo base_url() . 'index.php/LoginController/LoginCek'?>",
+						url: "<?php echo base_url() . 'index.php/Login/LoginCek'?>",
 						data: formLogin,
 						cache: false,
 						processData:false,
@@ -159,18 +161,12 @@
 							showToast("login <b>berhasil..!</b>",'success');
 							
 							setTimeout(() => {
-								window.location.href="<?php echo base_url() . 'index.php/DashboardController'?>";
+								window.location.href="<?php echo base_url() . 'index.php/Dashboard'?>";
 							}, 400);
 						},
 						error:function(data) {
 							hideLoadingSpinner();
-							
-							if (data.status == 401) {
-								showToast(data.responseJSON.message,'warning');
-							}
-							else {
-								showToast('kesalahan pada <b>server</b>','danger');
-							}
+							showErrorServer(data);
 						}
 					});
 				}

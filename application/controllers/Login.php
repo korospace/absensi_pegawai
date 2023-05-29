@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class LoginController extends CI_Controller {
+class Login extends CI_Controller {
 
 	/**
 	 * NOTES: 
@@ -38,7 +38,7 @@ class LoginController extends CI_Controller {
         }
         else
         {
-			redirect(base_url().'index.php/DashboardController'); // to dashboardController
+			redirect(base_url().'index.php/Dashboard'); // to Dashboard
         }
 	}
 
@@ -53,6 +53,7 @@ class LoginController extends CI_Controller {
 
 		$dbResponse = $this->Login_model->getLoginUser($username, $password);
 
+		/* username check */
 		if ($dbResponse['status'] == false) {
 			$code = 401;
 			$data = [
@@ -62,6 +63,7 @@ class LoginController extends CI_Controller {
 		else {
 			$dataUser = $dbResponse['data'];
 
+			/* password check */
 			if ($password != $this->encryption->decrypt($dataUser->password)) {
 				$code = 401;
 				$data = [
@@ -69,13 +71,23 @@ class LoginController extends CI_Controller {
 				];
 			}
 			else {
-				$newToken = generateToken($dataUser->userId,$dataUser->userLevel,false);
-                setcookie('_jwttoken',$newToken['token'],$newToken['expired'],"/");
 
-				$code = 200;
-				$data = [
-					'token' => $newToken['token']
-				];
+				/* status check */
+				if ($dataUser->status != 1) {
+					$code = 401;
+					$data = [
+						'message' => 'akun anda tidak aktif'
+					];
+				} 
+				else {
+					$newToken = generateToken($dataUser->userId,$dataUser->userLevel,false);
+					setcookie('_jwttoken',$newToken['token'],$newToken['expired'],"/");
+	
+					$code = 200;
+					$data = [
+						'token' => $newToken['token']
+					];
+				}
 			}
 		}
 

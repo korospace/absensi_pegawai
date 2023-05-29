@@ -60,7 +60,20 @@ function checkToken(?string $token=null,bool $withApiResponse = false): array
             ];
         }
 
-        return $arrayReturn;
+		if ($withApiResponse==false) {
+            return $arrayReturn;
+        }
+		else {
+			if ($arrayReturn['status'] == true) {
+				return $arrayReturn;
+			} 
+			else {
+				header('Content-Type: application/json; charset=UTF-8');
+				http_response_code(401);
+				echo json_encode($arrayReturn);
+				die;
+			}
+		}
     } 
     catch (\Throwable $th) {
         $arrayReturn = [
@@ -71,6 +84,12 @@ function checkToken(?string $token=null,bool $withApiResponse = false): array
         if ($withApiResponse==false) {
             return $arrayReturn;
         }
+		else {
+			header('Content-Type: application/json; charset=UTF-8');
+			http_response_code(401);
+			echo json_encode($arrayReturn);
+			die;
+		}
     }
 }
 
@@ -95,4 +114,16 @@ function generateSalam()
 	}
 
 	return "selamat " . $x . "";
+}
+
+function generateOTP(int $n) : string
+{
+	$generator = "1357902468";      
+	$result    = "";
+	
+	for ($i = 1; $i <= $n; $i++) {
+		$result .= substr($generator, (rand()%(strlen($generator))), 1);
+	}
+	
+	return $result;
 }

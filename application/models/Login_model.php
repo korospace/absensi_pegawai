@@ -9,11 +9,10 @@ class Login_model extends CI_Model
 
     function getLoginUser($username, $password)
     {
-		$this->db->select('u.userId,u.username,u.password,ul.name AS userLevel');
+		$this->db->select('u.userId,u.username,u.password,u.status,ul.name AS userLevel');
 		$this->db->from('users u');
 		$this->db->join('user_levels ul', 'u.userLevelId = ul.userLevelId');
         $this->db->where('u.username =', $username);
-        $this->db->where('u.status   =', '1');
 
         $query = $this->db->get('users');
 		$query = $query->result();
