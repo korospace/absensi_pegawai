@@ -62,6 +62,23 @@ class DashboardListEmployee extends CI_Controller {
 	}
 
 	/**
+	 * Api - Get Detil Employee
+	 * ==========================
+	 */
+	public function getDetilEmployee()
+	{
+		$token     = isset($_COOKIE['_jwttoken']) ? $_COOKIE['_jwttoken'] : null;
+        $dataToken = checkToken($token, true);
+
+		$dbResponse = $this->DashboardListEmployee_model->getDetilEmployee($this->input,$dataToken);
+
+		return $this->output
+			->set_content_type('application/json')
+			->set_status_header($dbResponse['code'])
+			->set_output(json_encode($dbResponse));
+	}
+
+	/**
 	 * Api - Change Employee Status
 	 * ============================
 	 */
@@ -115,23 +132,87 @@ class DashboardListEmployee extends CI_Controller {
 				->set_output(json_encode($this->form_validation->error_array()));
 		}
 
-		$name     = $this->input->post('name');
-		$phone    = $this->input->post('phone');
-		$username = strtolower(explode(' ',$name)[0]) . generateOTP(4);
-		$password = $this->encryption->encrypt($username);
-
-		$this->db->set('username', $username);
-		$this->db->set('password', $password);
-		$this->db->set('userLevelId', 2); // employee
-		$this->db->insert('users');
-
-		$this->db->set('name', $name);
-		$this->db->set('phone', $phone);
-		$this->db->set('userId', $this->db->insert_id());
-		$this->db->set('managerId', $dataToken['data']->userId);
-		$this->db->insert('employees');
+		$this->DashboardListEmployee_model->AddEmployee($this->input,$dataToken,$this);
 
 		echo true;
+	}
+
+	/**
+	 * Api - Edit Employee
+	 * ===================
+	 */
+	public function editEmployee()
+	{
+		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
+        $dataToken = checkToken($token, true);
+
+		/* Set validation rules */
+		$this->form_validation->set_rules(
+			'name','Nama',
+			'required|max_length[200]',
+			array(
+				'required'  => '%s harus diisi',
+				'max_length'=> '%s melebihi batas maxinal',
+			)
+		);
+		$this->form_validation->set_rules(
+			'phone','No.telp',
+			'numeric|required|max_length[20]',
+			array(
+				'required'    => '%s harus diisi',
+				'max_length'  => '%s maxinal 20 char',
+				'numeric'     => '%s harus angka',
+			)
+		);
+		$this->form_validation->set_rules(
+			'username','Username',
+			'required|min_length[8]|max_length[20]',
+			array(
+				'required'  => '%s harus diisi',
+				'min_length'=> '%s minimun 8 character',
+				'max_length'=> '%s maxinal 20 character',
+			)
+		);
+		$this->form_validation->set_rules(
+			'password','Password',
+			'min_length[8]|max_length[20]',
+			array(
+				'min_length'=> '%s minimun 8 character',
+				'max_length'=> '%s maxinal 20 character',
+			)
+		);
+
+		/* Set validation get error */
+		if ($this->form_validation->run() == FALSE)
+		{
+			return $this->output
+				->set_content_type('application/json')
+				->set_status_header(400)
+				->set_output(json_encode($this->form_validation->error_array()));
+		}
+
+		$dbResponse = $this->DashboardListEmployee_model->editEmployee($this->input,$dataToken,$this);
+
+		return $this->output
+			->set_content_type('application/json')
+			->set_status_header($dbResponse['code'])
+			->set_output(json_encode($dbResponse));
+	}
+
+	/**
+	 * API - Delete Employee
+	 */
+	public function deleteEmployee()
+	{
+		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
+        $dataToken = checkToken($token, true);
+
+		$dbResponse = $this->DashboardListEmployee_model->deleteEmployee($this->input,$dataToken);
+
+		return $this->output
+			->set_content_type('application/json')
+			->set_status_header($dbResponse['code'])
+			->set_output(json_encode($dbResponse));
 	}
 
 }

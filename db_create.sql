@@ -44,6 +44,7 @@ CREATE TABLE managers
     userId     INT(11)      NOT NULL,
     name       VARCHAR(255) NOT NULL,
     phone      VARCHAR(20)  DEFAULT NULL,
+    NA         VARCHAR(1)   DEFAULT "N",
     created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
 
@@ -58,6 +59,7 @@ CREATE TABLE employees
     managerId  INT(11)      NOT NULL,
     name       VARCHAR(255) NOT NULL,
     phone      VARCHAR(20)  DEFAULT NULL,
+    NA         VARCHAR(1)   DEFAULT "N",
     created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
 

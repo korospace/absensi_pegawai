@@ -19,6 +19,9 @@ function showErrorServer(data) {
 			showToast(data.responseJSON.message,'warning');
 		}
 	}
+	else if (data.status >= 400) {
+		showToast(data.responseJSON.message,'warning');
+	}
 	else if (data.status >= 500) {
 		showToast('kesalahan pada <b>server</b>','danger');
 	}
