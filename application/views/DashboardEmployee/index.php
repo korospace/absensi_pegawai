@@ -15,8 +15,10 @@
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/adminlte.min.css'); ?>">
 	<!-- Toastify style -->
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/toastify.min.css'); ?>">
-		<!-- Loading Spinner style -->
+	<!-- Loading Spinner style -->
 	<link rel="stylesheet" href="<?= base_url('assets/css/showLoadingSpinner.css'); ?>">
+	<!-- Img Viewer -->
+	<link rel="stylesheet" href="<?= base_url('assets/css/imgViewer.css'); ?>">
 
 	<style>
 		
@@ -68,33 +70,16 @@
 			<nav class="mt-2">
 				<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 					<li class="nav-item">
-						<a href="#" class="nav-link">
-						<i class="nav-icon fas fa-tachometer-alt"></i>
-						<p>
-							Dashboard
-							<i class="right fas fa-angle-left"></i>
-						</p>
+						<a href="" class="nav-link">
+							<i class="nav-icon fa fa-home"></i>
+							<p>Dashboard</p>
 						</a>
-						<ul class="nav nav-treeview">
-						<li class="nav-item">
-							<a href="../../index.html" class="nav-link">
-							<i class="far fa-circle nav-icon"></i>
-							<p>Dashboard v1</p>
-							</a>
-						</li>
-						<li class="nav-item">
-							<a href="../../index2.html" class="nav-link">
-							<i class="far fa-circle nav-icon"></i>
-							<p>Dashboard v2</p>
-							</a>
-						</li>
-						<li class="nav-item">
-							<a href="../../index3.html" class="nav-link">
-							<i class="far fa-circle nav-icon"></i>
-							<p>Dashboard v3</p>
-							</a>
-						</li>
-						</ul>
+					</li>
+					<li class="nav-item">
+						<a href="" class="nav-link" onclick="loadPage(this,event,'DashboardProfile')">
+							<i class="nav-icon fa fa-user"></i>
+							<p>My Profile</p>
+						</a>
 					</li>
 					<li class="nav-item">
 						<a href="" class="nav-link" onclick="logout(this,event)">
@@ -108,6 +93,27 @@
 		</div>
 		<!-- /.sidebar -->
 	</aside>
+
+	<div class="content-wrapper">
+
+		<!-- Page title -->
+		<section class="content-header">
+			<div class="container-fluid">
+				<div class="row mb-2">
+					<div class="col-sm-6">
+						<h1>Dashboard</h1>
+					</div>
+					<div class="col-sm-6">
+						<ol class="breadcrumb float-sm-right">
+							<li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+							<li class="breadcrumb-item active">Main</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+		</section>
+
+	</div>
 
 	<!-- ====================== JS ====================== -->
 	<!-- GLOBAL VARIABLE -->
@@ -132,6 +138,8 @@
 	<script src="<?= base_url('assets/js/showToastify.js') ?>"></script>
 	<!-- Loading Spinner -->
 	<script src="<?= base_url('assets/js/showLoadingSpinner.js') ?>"></script>
+	<!-- Img Viewer -->
+	<script src="<?= base_url('assets/js/imgViewer.js') ?>"></script>
 	<!-- Error Server -->
 	<script src="<?= base_url('assets/js/showErrorServer.js') ?>"></script>
 
@@ -160,6 +168,21 @@
 
 		/**
 		 * Load Page
+		 */
+		function loadPage(el,event,controller)
+        {
+			event.preventDefault();
+			
+            showLoadingSpinner();
+            $('.content-wrapper').load(controller);
+
+            $(document).ajaxStop(function () {
+                hideLoadingSpinner();
+            });
+        }
+
+		/**
+		 * Logout
 		 */
 		function logout(el,event)
         {

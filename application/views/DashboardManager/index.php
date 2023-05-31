@@ -21,6 +21,8 @@
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/toastify.min.css'); ?>">
 	<!-- Loading Spinner style -->
 	<link rel="stylesheet" href="<?= base_url('assets/css/showLoadingSpinner.css'); ?>">
+	<!-- Img Viewer -->
+	<link rel="stylesheet" href="<?= base_url('assets/css/imgViewer.css'); ?>">
 
 	<style>
 		
@@ -78,6 +80,12 @@
 						<a href="" class="nav-link" onclick="loadPage(this,event,'DashboardListEmployee')">
 							<i class="nav-icon fa fa-users"></i>
 							<p>Employees</p>
+						</a>
+					</li>
+					<li class="nav-item">
+						<a href="" class="nav-link" onclick="loadPage(this,event,'DashboardProfile')">
+							<i class="nav-icon fa fa-user"></i>
+							<p>My Profile</p>
 						</a>
 					</li>
 					<li class="nav-item">
@@ -141,6 +149,8 @@
 	<script src="<?= base_url('assets/js/showToastify.js') ?>"></script>
 	<!-- Loading Spinner -->
 	<script src="<?= base_url('assets/js/showLoadingSpinner.js') ?>"></script>
+	<!-- Img Viewer -->
+	<script src="<?= base_url('assets/js/imgViewer.js') ?>"></script>
 	<!-- Error Server -->
 	<script src="<?= base_url('assets/js/showErrorServer.js') ?>"></script>
 

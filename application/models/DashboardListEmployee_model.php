@@ -10,21 +10,25 @@ class DashboardListEmployee_model extends CI_Model
 	/* Get List Of Employee */
     public function getListEmployee($userId)
     {
-		$this->db->select('u.userId,u.username,u.status,e.employeeId,e.name,e.phone');
+		$this->db->select('u.userId,u.username,u.status,e.employeeId,e.name,e.phone,e.img_profile');
 		$this->db->from('users u');
 		$this->db->join('employees e', 'u.userId = e.userId');
         $this->db->where('e.NA =', "N");
         $this->db->where('e.managerId =', $userId);
 		$this->db->order_by("employeeId", "DESC");
-
         $query = $this->db->get();
-		return $query->result();
+        $query = $query->result();
+
+		foreach ($query as $q) {
+			$q->img_profile_full = getProfilePath()['original'] . $q->img_profile;
+		}
+
+		return $query;
     }
 
 	/* Get Detil Employee */
 	public function getDetilEmployee($input,$dataToken)
 	{
-		
 		$this->db->select('u.userId,u.username,u.status,e.employeeId,e.name,e.phone');
 		$this->db->from('users u');
 		$this->db->join('employees e', 'u.userId = e.userId');
@@ -89,7 +93,7 @@ class DashboardListEmployee_model extends CI_Model
 		return [
 			'code'    => $affectedRows > 0 ? 200  : 404,
 			'status'  => $affectedRows > 0 ? true : false,
-			'message' => $affectedRows > 0 ? "employee successfully updated" : "employee not updated",
+			'message' => $affectedRows > 0 ? "employee successfully updated" : "nothing update",
 		];
 	}
 

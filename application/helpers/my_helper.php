@@ -10,6 +10,16 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
  * - make sure you have enable composer_autoload in config.php
  */
 
+/**
+ * Get Img Profile Path 
+ */
+function getProfilePath(): array
+{
+	return [
+        'original'  => base_url().'assets/img/profile/',
+        'base'      => './assets/img/profile/',
+	];
+}
 
 /**
  * TOKEN KEY.
@@ -93,6 +103,9 @@ function checkToken(?string $token=null,bool $withApiResponse = false): array
     }
 }
 
+/**
+ * Generate Salam 
+ */
 function generateSalam()
 {
 	$start = strtotime(date("d-m-Y", time()). " 00:00:00");
@@ -116,6 +129,9 @@ function generateSalam()
 	return "selamat " . $x . "";
 }
 
+/**
+ * Generate OTP 
+ */
 function generateOTP(int $n) : string
 {
 	$generator = "1357902468";      

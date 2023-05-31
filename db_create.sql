@@ -40,13 +40,14 @@ CREATE TABLE users
 
 CREATE TABLE managers
 (
-    managerId  INT(11)      AUTO_INCREMENT,
-    userId     INT(11)      NOT NULL,
-    name       VARCHAR(255) NOT NULL,
-    phone      VARCHAR(20)  DEFAULT NULL,
-    NA         VARCHAR(1)   DEFAULT "N",
-    created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    managerId   INT(11)      AUTO_INCREMENT,
+    userId      INT(11)      NOT NULL,
+    name        VARCHAR(255) NOT NULL,
+    phone       VARCHAR(20)  DEFAULT NULL,
+    img_profile VARCHAR(100)  DEFAULT NULL,
+    NA          VARCHAR(1)   DEFAULT "N",
+    created_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY(managerId),
 	CONSTRAINT  fk_managers_users FOREIGN KEY (userId) REFERENCES users (userId) ON DELETE CASCADE ON UPDATE CASCADE
@@ -54,14 +55,15 @@ CREATE TABLE managers
 
 CREATE TABLE employees
 (
-    employeeId INT(11)      AUTO_INCREMENT,
-    userId     INT(11)      NOT NULL,
-    managerId  INT(11)      NOT NULL,
-    name       VARCHAR(255) NOT NULL,
-    phone      VARCHAR(20)  DEFAULT NULL,
-    NA         VARCHAR(1)   DEFAULT "N",
-    created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    employeeId  INT(11)      AUTO_INCREMENT,
+    userId      INT(11)      NOT NULL,
+    managerId   INT(11)      NOT NULL,
+    name        VARCHAR(255) NOT NULL,
+    phone       VARCHAR(20)  DEFAULT NULL,
+    img_profile VARCHAR(100)  DEFAULT NULL,
+    NA          VARCHAR(1)   DEFAULT "N",
+    created_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY(employeeId),
 	CONSTRAINT  fk_employees_users FOREIGN KEY (userId) REFERENCES users (userId) ON DELETE CASCADE ON UPDATE CASCADE,

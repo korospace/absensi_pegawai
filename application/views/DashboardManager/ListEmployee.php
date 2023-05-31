@@ -25,7 +25,7 @@
 		</div>
 	</section>
 
-	<!-- Main Body -->
+	<!-- Page Body -->
 	<div class="content">
 		<div class="container-fluid">
 			<div class="row">
@@ -42,6 +42,7 @@
 								<thead>
 									<tr>
 										<th>No</th>
+										<th>Photo</th>
 										<th>Username</th>
 										<th>Name</th>
 										<th>Phone</th>
@@ -118,22 +119,22 @@
 
 										<div class="form-group">
 											<label for="name">Nama Lengkap</label>
-											<input type="text" class="form-control" id="name" name="name" placeholder="Namalengkap">
+											<input type="text" class="form-control" id="name" name="name">
 										</div>
 										<div class="form-group">
 											<label for="phone">No. Telp</label>
-											<input type="text" class="form-control" id="phone" name="phone" placeholder="Nomor telepon">
+											<input type="text" class="form-control" id="phone" name="phone">
 										</div>
 										<div class="form-group">
 											<label for="username">Username</label>
-											<input type="text" class="form-control" id="username" name="username" placeholder="Username">
+											<input type="text" class="form-control" id="username" name="username">
 										</div>
 										<div class="form-group">
 											<label for="password">
 												Password
 												<small><i>(optional)</i></small>
 											</label>
-											<input type="password" class="form-control" id="password" name="password" placeholder="Password">
+											<input type="password" class="form-control" id="password" name="password">
 										</div>
 									</div>
 								</div>
@@ -182,9 +183,11 @@
 						data.no     = i+1;
 						data.phone  = data.phone ? data.phone : '----';
 
+						data.photo  = `<img class="img-thumbnail" width="150px" min-height="150px" max-height="250px" src="${data.img_profile ? data.img_profile_full : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOn8NttvA6tqm6qneoTylDrit08oB005q18Q&usqp=CAU'}"/>`;
+
 						data.status = `<span class="btn_status btn btn-sm btn-${data.status == 1 ? 'success' : 'danger'}" data-status="${data.status}" data-userId="${data.userId}">
-							${data.status == 1 ? 'aktif' : 'tidak aktif'}
-						</span>`;
+								${data.status == 1 ? 'aktif' : 'tidak aktif'}
+							</span>`;
 
 						data.action = `<a class="btn_delete btn btn-sm bg-danger" data-employeeId="${data.employeeId}">
 								<i class="fas fa-trash"></i>
@@ -200,6 +203,7 @@
 						data   	  : datas,
 						columns	  : [
 							{ data: 'no' },
+							{ data: 'photo' },
 							{ data: 'username' },
 							{ data: 'name' },
 							{ data: 'phone' },
@@ -209,6 +213,7 @@
 					});
 
 					/* enable btn */
+					enableImgViewer(".img-thumbnail");
 					enableBtnStatus();
 					enableBtnDelete();
 					enableBtnEdit();
@@ -426,6 +431,9 @@
 					$.ajax({
 						type: "GET",
 						url: "<?php echo base_url() . 'index.php/DashboardListEmployee/getDetilEmployee?userId='?>"+userId,
+						headers: {
+							'token': $.cookie("_jwttoken"),
+						},
 						success:function(datas) {
 							hideLoadingSpinner();
 
@@ -505,7 +513,7 @@
 							hideLoadingSpinner();
 
 							showToast("employee successfully <b>updated..!</b>",'success');
-							$('#modalEditEmployee').modal('hide');
+							$(`#formEditEmployee input[name=password]`).val('');
 							fn_get_list_employee();
 						},
 						error:function(data) {
@@ -524,7 +532,6 @@
 					});
 				}
 			});
-
 	</script>
 </body>
 </html>

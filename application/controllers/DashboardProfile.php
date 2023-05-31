@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class DashboardListEmployee extends CI_Controller {
+class DashboardProfile extends CI_Controller {
 
 	/**
 	 * NOTES: 
@@ -11,14 +11,14 @@ class DashboardListEmployee extends CI_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-
+ 
 		$this->load->helper(['url','form','my_helper']);
 		$this->load->library(['form_validation','encryption']);
-	 	$this->load->model('DashboardListEmployee_model');
+		$this->load->model('DashboardProfile_model');
 	}
 
 	/**
-	 * View List Of Employee
+	 * View Profile
 	 * =====================
 	 */
 	public function index()
@@ -33,44 +33,27 @@ class DashboardListEmployee extends CI_Controller {
 			</script>";
         }
 		else {
-			if ($dataToken['data']->privilege != 'manager') {
-				echo "<script>
-					window.location.replace('" . base_url() . "index.php/notfound');
-				</script>";
+			$privilege = $dataToken['data']->privilege;
+			
+			if ($privilege == 'manager') {
+				$this->load->view('DashboardManager/Profile'); 
+			} 
+			elseif ($privilege == 'employee') {
+				$this->load->view('DashboardEmployee/Profile'); 
 			}
-
-			$this->load->view('DashboardManager/ListEmployee'); 
 		}
 	}
 
 	/**
-	 * Api - Get List Of Employee
-	 * ==========================
+	 * API - Get Data Profile - Manager
+	 * ======================
 	 */
-	public function getListEmployee()
-	{
-		$token     = isset($_COOKIE['_jwttoken']) ? $_COOKIE['_jwttoken'] : null;
-        $dataToken = checkToken($token, true);
-		$userId    = $dataToken['data']->userId;
-
-		$dbResponse = $this->DashboardListEmployee_model->getListEmployee($userId);
-
-		return $this->output
-			->set_content_type('application/json')
-			->set_status_header(200)
-			->set_output(json_encode($dbResponse));
-	}
-
-	/**
-	 * Api - Get Detil Employee
-	 * ==========================
-	 */
-	public function getDetilEmployee()
+	public function getDataProfileManager()
 	{
 		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
         $dataToken = checkToken($token, true);
 
-		$dbResponse = $this->DashboardListEmployee_model->getDetilEmployee($this->input,$dataToken);
+		$dbResponse = $this->DashboardProfile_model->getDataProfileManager($dataToken['data']->userId);
 
 		return $this->output
 			->set_content_type('application/json')
@@ -79,31 +62,36 @@ class DashboardListEmployee extends CI_Controller {
 	}
 
 	/**
-	 * Api - Change Employee Status
-	 * ============================
+	 * API - Get Data Profile - Employee
+	 * ======================
 	 */
-	public function changeEmployeeStatus()
+	public function getDataProfileEmployee()
 	{
 		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
         $dataToken = checkToken($token, true);
 
-		$this->db->set('status', $this->input->post('status'));
-		$this->db->where('userId', $this->input->post('userId'));
-		$this->db->update('users');
+		$dbResponse = $this->DashboardProfile_model->getDataProfileEmployee($dataToken['data']->userId);
 
-		echo true;
+		return $this->output
+			->set_content_type('application/json')
+			->set_status_header($dbResponse['code'])
+			->set_output(json_encode($dbResponse));
 	}
 
 	/**
-	 * Api - Add Employee
+	 * Api - Edit Profile - Manager
 	 * ===================
 	 */
-	public function AddEmployee()
+	public function editProfileManager()
 	{
 		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
         $dataToken = checkToken($token, true);
 
 		/* Set validation rules */
+		// if (empty($_FILES['img_profile']['name']))
+		// {
+		// 	$this->form_validation->set_rules('img_profile', 'Profile Image', 'required');
+		// }
 		$this->form_validation->set_rules(
 			'name','Nama',
 			'required|max_length[200]',
@@ -114,12 +102,28 @@ class DashboardListEmployee extends CI_Controller {
 		);
 		$this->form_validation->set_rules(
 			'phone','No.telp',
-			'numeric|required|max_length[20]|is_unique[employees.phone]',
+			'numeric|required|max_length[20]',
+			array(
+				'required'    => '%s harus diisi',
+				'max_length'  => '%s maxinal 20 char',
+				'numeric'     => '%s harus angka',
+			)
+		);
+		$this->form_validation->set_rules(
+			'username','Username',
+			'required|min_length[8]|max_length[20]',
 			array(
 				'required'  => '%s harus diisi',
-				'max_length'=> '%s melebihi batas maxinal',
-				'numeric'   => '%s harus angka',
-				'is_unique' => '%s sudah terdaftar'
+				'min_length'=> '%s minimun 8 character',
+				'max_length'=> '%s maxinal 20 character',
+			)
+		);
+		$this->form_validation->set_rules(
+			'password','Password',
+			'min_length[8]|max_length[20]',
+			array(
+				'min_length'=> '%s minimun 8 character',
+				'max_length'=> '%s maxinal 20 character',
 			)
 		);
 
@@ -132,16 +136,19 @@ class DashboardListEmployee extends CI_Controller {
 				->set_output(json_encode($this->form_validation->error_array()));
 		}
 
-		$this->DashboardListEmployee_model->AddEmployee($this->input,$dataToken,$this);
+		$dbResponse = $this->DashboardProfile_model->editProfileManager($this->input,$dataToken['data']->userId,$this);
 
-		echo true;
+		return $this->output
+			->set_content_type('application/json')
+			->set_status_header($dbResponse['code'])
+			->set_output(json_encode($dbResponse));
 	}
 
 	/**
-	 * Api - Edit Employee
+	 * Api - Edit Profile - Employee
 	 * ===================
 	 */
-	public function editEmployee()
+	public function editProfileEmployee()
 	{
 		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
         $dataToken = checkToken($token, true);
@@ -191,28 +198,11 @@ class DashboardListEmployee extends CI_Controller {
 				->set_output(json_encode($this->form_validation->error_array()));
 		}
 
-		$dbResponse = $this->DashboardListEmployee_model->editEmployee($this->input,$dataToken,$this);
+		$dbResponse = $this->DashboardProfile_model->editProfileEmployee($this->input,$dataToken['data']->userId,$this);
 
 		return $this->output
 			->set_content_type('application/json')
 			->set_status_header($dbResponse['code'])
 			->set_output(json_encode($dbResponse));
 	}
-
-	/**
-	 * API - Delete Employee
-	 */
-	public function deleteEmployee()
-	{
-		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
-        $dataToken = checkToken($token, true);
-
-		$dbResponse = $this->DashboardListEmployee_model->deleteEmployee($this->input,$dataToken);
-
-		return $this->output
-			->set_content_type('application/json')
-			->set_status_header($dbResponse['code'])
-			->set_output(json_encode($dbResponse));
-	}
-
 }
