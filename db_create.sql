@@ -2,14 +2,15 @@
 	DROP table
 	================================================ 
 */
+DROP TABLE IF EXISTS db_ci3_absensi_pegawai.manager_configs;
 
-DROP TABLE IF EXISTS db_ci3_absensi_daniel.employees;
+DROP TABLE IF EXISTS db_ci3_absensi_pegawai.employees;
 
-DROP TABLE IF EXISTS db_ci3_absensi_daniel.managers;
+DROP TABLE IF EXISTS db_ci3_absensi_pegawai.managers;
 
-DROP TABLE IF EXISTS db_ci3_absensi_daniel.users;
+DROP TABLE IF EXISTS db_ci3_absensi_pegawai.users;
 
-DROP TABLE IF EXISTS db_ci3_absensi_daniel.user_levels;
+DROP TABLE IF EXISTS db_ci3_absensi_pegawai.user_levels;
 
 /* 
 	CREATE table
@@ -41,13 +42,13 @@ CREATE TABLE users
 CREATE TABLE managers
 (
     managerId   INT(11)      AUTO_INCREMENT,
-    userId      INT(11)      NOT NULL,
-    name        VARCHAR(255) NOT NULL,
-    phone       VARCHAR(20)  DEFAULT NULL,
+    userId      INT(11)       NOT NULL,
+    name        VARCHAR(255)  NOT NULL,
+    phone       VARCHAR(20)   DEFAULT NULL,
     img_profile VARCHAR(100)  DEFAULT NULL,
-    NA          VARCHAR(1)   DEFAULT "N",
-    created_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    updated_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    NA          VARCHAR(1)    DEFAULT "N",
+    created_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY(managerId),
 	CONSTRAINT  fk_managers_users FOREIGN KEY (userId) REFERENCES users (userId) ON DELETE CASCADE ON UPDATE CASCADE
@@ -55,19 +56,34 @@ CREATE TABLE managers
 
 CREATE TABLE employees
 (
-    employeeId  INT(11)      AUTO_INCREMENT,
-    userId      INT(11)      NOT NULL,
-    managerId   INT(11)      NOT NULL,
-    name        VARCHAR(255) NOT NULL,
-    phone       VARCHAR(20)  DEFAULT NULL,
+    employeeId  INT(11)       AUTO_INCREMENT,
+    userId      INT(11)       NOT NULL,
+    managerId   INT(11)       NOT NULL,
+    name        VARCHAR(255)  NOT NULL,
+    phone       VARCHAR(20)   DEFAULT NULL,
     img_profile VARCHAR(100)  DEFAULT NULL,
-    NA          VARCHAR(1)   DEFAULT "N",
-    created_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    updated_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    NA          VARCHAR(1)    DEFAULT "N",
+    created_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY(employeeId),
 	CONSTRAINT  fk_employees_users FOREIGN KEY (userId) REFERENCES users (userId) ON DELETE CASCADE ON UPDATE CASCADE,
 	CONSTRAINT  fk_employees_managers FOREIGN KEY (managerId) REFERENCES managers (managerId) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE manager_configs
+(
+    configId    	INT(11)      AUTO_INCREMENT,
+    managerId   	INT(11)      NOT NULL,
+    meet_link   	text         DEFAULT NULL,
+    meet_time_show  VARCHAR(8)   DEFAULT NULL,
+    meet_time_hide  VARCHAR(8)   DEFAULT NULL,
+    meet_days_show  VARCHAR(60)  DEFAULT NULL,
+    created_at  TIMESTAMP    	 DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP    	 DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY(configId),
+	CONSTRAINT  fk_manager_config_managers FOREIGN KEY (managerId) REFERENCES managers (managerId) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 /* 
@@ -118,3 +134,10 @@ INSERT INTO employees (userId,managerId,name) VALUES (
 	2,
 	'rilo anggoro'
 );
+
+-- INSERT INTO manager_configs (managerId) VALUES (
+-- 	1
+-- );
+-- INSERT INTO manager_configs (managerId) VALUES (
+-- 	2
+-- );

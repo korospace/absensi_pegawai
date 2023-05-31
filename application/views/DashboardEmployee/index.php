@@ -57,7 +57,7 @@
 		<!-- Sidebar -->
 		<div class="sidebar">
 			<!-- Sidebar user (optional) -->
-			<div class="user-panel mt-3 pb-3 mb-3 d-flex justify-content-center">
+			<div class="user-panel mt-3 pb-3 d-flex justify-content-center">
 				<!-- <div class="image">
 					<img src="<?= base_url() ?>assets/img/user-default.jpeg" class="img-circle elevation-2" alt="User Image">
 				</div> -->
@@ -67,7 +67,7 @@
 			</div>
 
 			<!-- Sidebar Menu -->
-			<nav class="mt-2">
+			<nav class="user-panel mt-3 pb-3">
 				<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 					<li class="nav-item">
 						<a href="" class="nav-link">
@@ -81,15 +81,19 @@
 							<p>My Profile</p>
 						</a>
 					</li>
+				</ul>
+			</nav>
+			<!-- /.sidebar-menu -->
+
+			<nav class="mt-4">
+				<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 					<li class="nav-item">
-						<a href="" class="nav-link" onclick="logout(this,event)">
-							<i class="nav-icon fa fa-power-off"></i>
-							<p>Logout</p>
+						<a href="" class="w-100 text-center p-4 btn btn-danger" onclick="logout(this,event)">
+							<i class="fa fa-power-off" style="font-size: 30px;"></i>
 						</a>
 					</li>
 				</ul>
 			</nav>
-			<!-- /.sidebar-menu -->
 		</div>
 		<!-- /.sidebar -->
 	</aside>
@@ -112,6 +116,24 @@
 				</div>
 			</div>
 		</section>
+
+		<div class="content mt-2">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-12">
+						<div class="alert alert-info alert-dismissible">
+							<h5 class="d-flex align-items-center mb-4">
+								Online Meeting
+							</h5>
+							<span>
+								<i class="fa fa-arrow-right mr-2" aria-hidden="true" style="font-size: 14px;"></i>
+							</span> 
+							<b id="link-wraper" style="font-size: 18px;">_ _ _ _</b>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
 	</div>
 
@@ -158,6 +180,7 @@
 				},
 				error:function(data) {
 					clearInterval(intervalCheckExp);
+					clearInterval(intervalGetMeetLink);
 					
 					showErrorServer(data);
 				}
@@ -203,6 +226,29 @@
                 }
             })
         }
+
+		/**
+		 * Get Mink Link
+		 */
+		let intervalGetMeetLink = null;
+
+		let getMeetLink = function() { 
+			$.ajax({
+				type: "GET",
+				url: "<?php echo base_url() . 'index.php/DashboardManagerConfig/getMeetLink'?>",
+				headers: {
+					'token': $.cookie("_jwttoken"),
+				},
+				success:function(res) {
+					$('#link-wraper').html(res.data ? `<a href="${res.data}" target="_blank">${res.data}</a>` : "_ _ _ _" );
+				},
+				error:function(res) {
+					// nothing
+				}
+			});
+		}
+
+		intervalGetMeetLink = setInterval(getMeetLink, 5000);
 	</script>
 </body>
 </html>

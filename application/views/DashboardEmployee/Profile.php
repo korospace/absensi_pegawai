@@ -26,7 +26,7 @@
 	</section>
 
 	<!-- Page Body -->
-	<div class="content">
+	<div class="content mt-2">
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-12">
@@ -34,8 +34,8 @@
 						<form class="form-horizontal" id="formEditProfile" autocomplete="off">
 							<div class="card-body">
 								<div class="form-group row">
-									<div id="thumb-wraper" class="col-12">
-										<img class="img-thumbnail" width="240px" min-height="150px" max-height="240px" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOn8NttvA6tqm6qneoTylDrit08oB005q18Q&usqp=CAU"/>
+									<div id="thumb-wraper" class="col-sm-4 col-md-2">
+										<img class="img-thumbnail" width="100%" max-height="300px" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOn8NttvA6tqm6qneoTylDrit08oB005q18Q&usqp=CAU"/>
 									</div>
 								</div>
 								<div class="form-group row">

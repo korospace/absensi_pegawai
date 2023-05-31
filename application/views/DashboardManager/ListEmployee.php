@@ -26,7 +26,7 @@
 	</section>
 
 	<!-- Page Body -->
-	<div class="content">
+	<div class="content mt-2">
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-12">

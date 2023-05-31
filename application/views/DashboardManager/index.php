@@ -15,6 +15,8 @@
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/datatable/dataTables.bootstrap4.min.css') ?>">
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/datatable/responsive.bootstrap4.min.css') ?>">
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/datatable/buttons.bootstrap4.min.css') ?>">
+	<!-- iCheck for checkboxes and radio inputs -->
+	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/icheck-bootstrap.min.css') ?>">
 	<!-- Theme style -->
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/adminlte.min.css'); ?>">
 	<!-- Toastify style -->
@@ -29,8 +31,8 @@
 	</style>
 
 </head>
-<body>
-
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
 	<!-- Navbar -->
 	<nav class="main-header navbar navbar-expand navbar-white navbar-light">
 		<!-- Nav burger -->
@@ -61,14 +63,14 @@
 		<!-- Sidebar -->
 		<div class="sidebar">
 			<!-- Name of user -->
-			<div class="user-panel mt-3 pb-3 mb-3 d-flex justify-content-center">
+			<div class="user-panel pb-3 mt-3 d-flex justify-content-center">
 				<div class="info">
 					<a href="#" class="d-block"><?= generateSalam(); ?>, <b><?= $name ?></b>!</a>
 				</div>
 			</div>
 
 			<!-- List of Menu -->
-			<nav class="mt-2">
+			<nav class="user-panel pb-3 mt-3">
 				<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 					<li class="nav-item">
 						<a href="" class="nav-link">
@@ -83,20 +85,30 @@
 						</a>
 					</li>
 					<li class="nav-item">
+						<a href="" class="nav-link" onclick="loadPage(this,event,'DashboardManagerConfig')">
+							<i class="nav-icon fa fa-cog"></i>
+							<p>Config</p>
+						</a>
+					</li>
+					<li class="nav-item">
 						<a href="" class="nav-link" onclick="loadPage(this,event,'DashboardProfile')">
 							<i class="nav-icon fa fa-user"></i>
 							<p>My Profile</p>
 						</a>
 					</li>
+				</ul>
+			</nav>
+			<!-- /.sidebar-menu -->
+
+			<nav class="mt-4">
+				<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 					<li class="nav-item">
-						<a href="" class="nav-link" onclick="logout(this,event)">
-							<i class="nav-icon fa fa-power-off"></i>
-							<p>Logout</p>
+						<a href="" class="w-100 text-center p-4 btn btn-danger" onclick="logout(this,event)">
+							<i class="fa fa-power-off" style="font-size: 30px;"></i>
 						</a>
 					</li>
 				</ul>
 			</nav>
-			<!-- /.sidebar-menu -->
 		</div>
 		<!-- /.sidebar -->
 	</aside>
@@ -121,6 +133,7 @@
 		</section>
 
 	</div>
+</div>
 
 	<!-- ====================== JS ====================== -->
 	<!-- GLOBAL VARIABLE -->
@@ -141,6 +154,9 @@
 	<script src="<?= base_url('assets/js/plugins/datatable/jquery.dataTables.min.js') ?>"></script>
 	<script src="<?= base_url('assets/js/plugins/datatable/dataTables.bootstrap4.min.js') ?>"></script>
 	<script src="<?= base_url('assets/js/plugins/datatable/dataTables.buttons.min.js') ?>"></script>
+	<!-- Time Picker -->
+	<script src="<?= base_url('assets/js/plugins/dayjs.min.js') ?>"></script>
+	<script src="<?= base_url('assets/js/plugins/timepicker-bs4.js') ?>"></script>
 	<!-- AdminLTE App -->
 	<script src="<?= base_url('assets/js/plugins/adminlte.min.js') ?>"></script>
 	<!-- Sweet Alert -->
