@@ -17,7 +17,7 @@
 				</div>
 				<div class="col-sm-6">
 					<ol class="breadcrumb float-sm-right">
-						<li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+						<li class="breadcrumb-item"><a href="#" class="text-secondary">Dashboard</a></li>
 						<li class="breadcrumb-item active">Employees</li>
 					</ol>
 				</div>
@@ -41,13 +41,27 @@
 							<table id="tableEmployees" class="table table-bordered table-hover">
 								<thead>
 									<tr>
-										<th>No</th>
-										<th>Photo</th>
-										<th>Username</th>
-										<th>Name</th>
-										<th>Phone</th>
-										<th>Status</th>
-										<th>Action</th>
+										<th>
+											No
+										</th>
+										<th class="text-center">
+											Photo
+										</th>
+										<th>
+											Username
+										</th>
+										<th>
+											Name
+										</th>
+										<th class="text-center">
+											Phone
+										</th>
+										<th class="text-center">
+											Status
+										</th>
+										<th class="text-center">
+											Action
+										</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -163,7 +177,6 @@
 			"info"			: true,
 			"autoWidth"		: false,
 			"responsive"	: true,
-			"bDestroy"      : true,
 		}).buttons().container().appendTo('#tableEmployees_wrapper .col-md-6:eq(0)');
 
 		/**
@@ -185,9 +198,11 @@
 
 						data.photo  = `<img class="img-thumbnail" width="150px" min-height="150px" max-height="250px" src="${data.img_profile ? data.img_profile_full : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOn8NttvA6tqm6qneoTylDrit08oB005q18Q&usqp=CAU'}"/>`;
 
-						data.status = `<span class="btn_status btn btn-sm btn-${data.status == 1 ? 'success' : 'danger'}" data-status="${data.status}" data-userId="${data.userId}">
-								${data.status == 1 ? 'aktif' : 'tidak aktif'}
-							</span>`;
+						// data.status = `<span class="btn_status btn btn-sm btn-${data.status == 1 ? 'success' : 'danger'}" data-status="${data.status}" data-userId="${data.userId}">
+						// 		${data.status == 1 ? 'aktif' : 'tidak aktif'}
+						// 	</span>`;
+
+						data.status = `<input type="checkbox" class="btn_status" ${data.status == 1 ? 'checked' : ''} data-bootstrap-switch data-off-color="danger" data-on-color="success" data-status="${data.status}" data-userId="${data.userId}">`;
 
 						data.action = `<a class="btn_delete btn btn-sm bg-danger" data-employeeId="${data.employeeId}">
 								<i class="fas fa-trash"></i>
@@ -209,7 +224,13 @@
 							{ data: 'phone' },
 							{ data: 'status' },
 							{ data: 'action' },
-						],
+						], 
+						columnDefs: [
+							{
+								"targets": [1,4,5,6],
+								"className": "text-center",
+							},
+						]
 					});
 
 					/* enable btn */
@@ -233,13 +254,16 @@
 		 */
 		function enableBtnStatus() {
 			$('.btn_status').each(function () {
-				$(this).on('click', function () {
+				let selectedBtn = $(this);
+
+				selectedBtn.bootstrapSwitch('state', selectedBtn.prop('checked'));
+				
+				selectedBtn.on('switchChange.bootstrapSwitch', function () {
 					showLoadingSpinner();
-					let selectedBtn = $(this);
 
 					/* get data from html attribute */
-					let status = $(this).attr('data-status');
-					let userId = $(this).attr('data-userId');
+					let status = selectedBtn.attr('data-status');
+					let userId = selectedBtn.attr('data-userId');
 
 					/* create form */
 					let form = new FormData();

@@ -124,7 +124,7 @@
 					</div>
 					<div class="col-sm-6">
 						<ol class="breadcrumb float-sm-right">
-							<li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+							<li class="breadcrumb-item"><a href="#" class="text-secondary">Dashboard</a></li>
 							<li class="breadcrumb-item active">Main</li>
 						</ol>
 					</div>
@@ -157,6 +157,8 @@
 	<!-- Time Picker -->
 	<script src="<?= base_url('assets/js/plugins/dayjs.min.js') ?>"></script>
 	<script src="<?= base_url('assets/js/plugins/timepicker-bs4.js') ?>"></script>
+	<!-- Bootstrap Switch -->
+	<script src="<?= base_url('assets/js/plugins/bootstrap-switch.min.js') ?>"></script>
 	<!-- AdminLTE App -->
 	<script src="<?= base_url('assets/js/plugins/adminlte.min.js') ?>"></script>
 	<!-- Sweet Alert -->

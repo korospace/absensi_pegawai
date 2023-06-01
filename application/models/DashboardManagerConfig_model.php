@@ -8,7 +8,7 @@ class DashboardManagerConfig_model extends CI_Model
 	 */
 
 	## Get Manager ID
-    function getDataProfileManager($userId)
+    protected function getDataProfileManager($userId)
     {
 		$this->db->select('managerId');
         $this->db->where('userId =', $userId);
@@ -17,8 +17,10 @@ class DashboardManagerConfig_model extends CI_Model
 		return $query->first_row()->managerId;
     }
 
-	## Get Config
-    function getConfig($userId)
+	/**
+	 * Get Config
+	 */
+    public function getConfig($userId)
     {
 		$managerId = $this->getDataProfileManager($userId);
 
@@ -46,7 +48,9 @@ class DashboardManagerConfig_model extends CI_Model
 		];
     }
 
-	## Edit Config
+	/**
+	 * Edit Config
+	 */
 	public function editConfig($input,$userId)
 	{
 		$managerId = $this->getDataProfileManager($userId);
@@ -72,6 +76,9 @@ class DashboardManagerConfig_model extends CI_Model
 		];
 	}
 
+	/**
+	 * Get Meet Link
+	 */
 	public function getMeetLink($userId)
 	{
 		$this->db->select('managerId');
@@ -90,11 +97,11 @@ class DashboardManagerConfig_model extends CI_Model
 
 		$today      = strtolower(date("l", time()));
 		$configDays = explode(",", $query->meet_days_show);
-
+		
 		if (in_array($today,$configDays)) {
 			$configTimeShowUnix = strtotime(date("d-m-Y", time()) . " " . $query->meet_time_show . ":00");
 			$configTimeHideUnix = strtotime(date("d-m-Y", time()) . " " . $query->meet_time_hide . ":00");
-
+			
 			if (time() >= $configTimeShowUnix && time() <= $configTimeHideUnix) {
 				$link = $query->meet_link;
 			}

@@ -11,8 +11,14 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 	<!-- Font Awesome -->
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/fontawesome-free/css/all.min.css'); ?>">
+	<!-- DataTables -->
+	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/datatable/dataTables.bootstrap4.min.css') ?>">
+	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/datatable/responsive.bootstrap4.min.css') ?>">
+	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/datatable/buttons.bootstrap4.min.css') ?>">
 	<!-- Theme style -->
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/adminlte.min.css'); ?>">
+	<!-- summernote -->
+	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/summernote/summernote-bs4.min.css'); ?>">
 	<!-- Toastify style -->
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/toastify.min.css'); ?>">
 	<!-- Loading Spinner style -->
@@ -21,11 +27,17 @@
 	<link rel="stylesheet" href="<?= base_url('assets/css/imgViewer.css'); ?>">
 
 	<style>
-		
+		#modalAddTask .modal-dialog, #modalEditTask .modal-dialog {
+			max-width: 100% !important;
+		}
+
+		#modalAddTask .modal-content, #modalEditTask .modal-content {
+			max-width: 100% !important;
+		}
 	</style>
 
 </head>
-<body>
+<body class="hold-transition sidebar-mini layout-fixed">
 
 	<!-- Navbar -->
 	<nav class="main-header navbar navbar-expand navbar-white navbar-light">
@@ -109,7 +121,7 @@
 					</div>
 					<div class="col-sm-6">
 						<ol class="breadcrumb float-sm-right">
-							<li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+							<li class="breadcrumb-item"><a href="#" class="text-secondary">Dashboard</a></li>
 							<li class="breadcrumb-item active">Main</li>
 						</ol>
 					</div>
@@ -117,13 +129,15 @@
 			</div>
 		</section>
 
+		<!-- Main Body -->
 		<div class="content mt-2">
+			<!-- Meeting Link -->
 			<div class="container-fluid">
 				<div class="row">
 					<div class="col-12">
-						<div class="alert alert-info alert-dismissible">
+						<div class="alert alert-secondary">
 							<h5 class="d-flex align-items-center mb-4">
-								Online Meeting
+								<span>Online Meeting</span>
 							</h5>
 							<span>
 								<i class="fa fa-arrow-right mr-2" aria-hidden="true" style="font-size: 14px;"></i>
@@ -133,8 +147,210 @@
 					</div>
 				</div>
 			</div>
+
+			<!-- Tasks -->
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-12">
+						<div class="card card-secondary card-outline">
+							<div class="card-header">
+								<h3 class="card-title">
+								<i class="fas fa-edit"></i>
+									Task
+								</h3>
+							</div>
+
+							<div class="card-body">
+								<div class="row">
+									<div class="col-12">
+										<div class="card card-secondary card-outline card-outline-tabs">
+											<div class="card-header p-0 border-bottom-0">
+												<ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
+													<li class="nav-item">
+														<a class="nav-link text-secondary active" id="today_task_tab" data-toggle="pill" href="#today_task" role="tab" aria-controls="today_task" aria-selected="true">Today</a>
+													</li>
+													<li class="nav-item">
+														<a class="nav-link text-secondary" id="all_task_tab" data-toggle="pill" href="#all_task" role="tab" aria-controls="all_task" aria-selected="false">All</a>
+													</li>
+												</ul>
+											</div>
+											<div class="card-body">
+												<div class="tab-content" id="custom-tabs-four-tabContent">
+													<div class="tab-pane fade show active" id="today_task" role="tabpanel" aria-labelledby="today_task_tab">
+														<div class="row">
+															<div class="col-12 d-flex justify-content-end">
+																<button type="button" class="btn btn-secondary btn-md" style="width: max-content;" data-toggle="modal" data-target="#modalAddTask" onclick="clearInputForm('#formAddTask')">
+																	<i class="fa fa-plus"></i> &nbsp; ADD
+																</button>
+															</div>
+
+															<div class="col-12 mt-4">
+																<table class="table table-bordered table-hover" id="table_today_task">
+																	<thead>
+																		<tr>
+																			<th class="text-center">
+																				#
+																			</th>
+																			<th>
+																				Title
+																			</th>
+																			<th class="text-center">
+																				Created At
+																			</th>
+																			<th class="text-center">
+																				Status
+																			</th>
+																			<th class="text-center">
+																				Action
+																			</th>
+																		</tr>
+																	</thead>
+																	<tbody>
+
+																	</tbody>
+																</table>
+															</div>
+														</div>
+													</div>
+													<div class="tab-pane fade" id="all_task" role="tabpanel" aria-labelledby="all_task_tab">
+														All
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 
+	</div>
+
+	<!-- ==================
+			Modals
+	=================== -->
+	<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modalAddTask">
+		<div class="modal-dialog modal-xl">
+			<form class="modal-content" id="formAddTask">
+				<div class="modal-header">
+					<h4 class="modal-title">New Task</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body pt-4 pb-3">
+					<div class="row">
+						<!-- title -->
+						<div class="col-md-6">
+							<div class="form-group">
+								<input type="text" class="form-control" id="title" name="title" placeholder="Title:">
+							</div>
+						</div>
+						<!-- description -->
+						<div class="col-12">
+							<div class="form-group">
+								<textarea id="description" name="description" class="form-control" style="height: 300px">
+									
+								</textarea>
+							</div>
+						</div>
+						<!-- Files -->
+						<div class="col-12 mt-3 mb-4">
+							<div class="dropdown-divider"></div>
+						</div>
+						<div class="col-12">
+							<div class="form-group">
+								<div class="btn btn-default btn-file">
+									<i class="fas fa-paperclip"></i> Attachment
+									<input type="file" name="attachment" id="attachment_input_leader" onchange="dokUploadCheck(this)">
+								</div>
+								<p class="help-block">Max. 5MB</p>
+							</div>
+						</div>
+						<div class="col-12">
+							<ul id="attachments_wraper" class="mailbox-attachments d-flex align-items-stretch clearfix">
+								
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer justify-content-between">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-success">Save changes</button>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modalEditTask">
+		<div class="modal-dialog modal-xl">
+			<form class="modal-content" id="formEditTask">
+				<div class="modal-header">
+					<h4 class="modal-title">Edit Task</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body pt-4 pb-3">
+					<div class="row">
+						<!-- status -->
+						<div class="col-12" id="status_wraper">
+						</div>
+						<!-- title -->
+						<div class="col-md-6 mt-3">
+							<div class="form-group">
+								<label for="title">Title:</label>
+								<input type="text" class="form-control" id="title" name="title" placeholder="Title:">
+							</div>
+						</div>
+						<!-- description -->
+						<div class="col-12">
+							<div class="form-group">
+								<label for="">Description:</label>
+								<textarea id="description" name="description" class="form-control" style="height: 300px">
+									
+								</textarea>
+							</div>
+						</div>
+						<!-- Old Files -->
+						<div class="col-12 mt-3 mb-4">
+							<div class="dropdown-divider"></div>
+						</div>
+						<div class="col-12">
+							<ul id="attachments_wraper_old" class="mailbox-attachments d-flex align-items-stretch clearfix">
+								<div class="text-center text-muted" style="width: 100%;">
+									<small>No Files Available</small>
+								</div>
+							</ul>
+						</div>
+						<!-- New Files -->
+						<div class="col-12 mt-3 mb-4">
+							<div class="dropdown-divider"></div>
+						</div>
+						<div class="col-12">
+							<div class="form-group">
+								<div class="btn btn-default btn-file">
+									<i class="fas fa-paperclip"></i> Attachment
+									<input type="file" name="attachment" id="attachment_input_leader" onchange="dokUploadCheck(this)">
+								</div>
+								<p class="help-block">Max. 5MB</p>
+							</div>
+						</div>
+						<div class="col-12">
+							<ul id="attachments_wraper" class="mailbox-attachments d-flex align-items-stretch clearfix">
+								
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer justify-content-between">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-success">Save changes</button>
+				</div>
+			</form>
+		</div>
 	</div>
 
 	<!-- ====================== JS ====================== -->
@@ -152,8 +368,14 @@
 	<!-- jquery-validation -->
 	<script src="<?= base_url('assets/js/plugins/jquery-validation/jquery.validate.min.js') ?>"></script>
 	<script src="<?= base_url('assets/js/plugins/jquery-validation/additional-methods.min.js') ?>"></script>
+	<!-- Datatable -->
+	<script src="<?= base_url('assets/js/plugins/datatable/jquery.dataTables.min.js') ?>"></script>
+	<script src="<?= base_url('assets/js/plugins/datatable/dataTables.bootstrap4.min.js') ?>"></script>
+	<script src="<?= base_url('assets/js/plugins/datatable/dataTables.buttons.min.js') ?>"></script>
 	<!-- AdminLTE App -->
 	<script src="<?= base_url('assets/js/plugins/adminlte.min.js') ?>"></script>
+	<!-- Summernote -->
+	<script src="<?= base_url('assets/js/plugins/summernote/summernote-bs4.min.js') ?>"></script>
 	<!-- Sweet Alert -->
     <script src="<?= base_url('assets/js/plugins/sweetalert2.min.js');?>"></script>
 	<!-- Toastify -->
@@ -228,7 +450,7 @@
         }
 
 		/**
-		 * Get Mink Link
+		 * Get Meet Link
 		 */
 		let intervalGetMeetLink = null;
 
@@ -249,6 +471,373 @@
 		}
 
 		intervalGetMeetLink = setInterval(getMeetLink, 5000);
+
+		/**
+		 * Initial Table Task (today)
+		 */
+		$("#table_today_task").DataTable({
+			"paging"    	: true,
+			"searching" 	: true,
+			"ordering"  	: true,
+			"retrieve"		: true,
+			"lengthChange"	: false,
+			"info"			: true,
+			"autoWidth"		: false,
+			"responsive"	: true,
+		}).buttons().container().appendTo('#table_today_task_wrapper .col-md-6:eq(0)');
+
+		/**
+		 * Get List Of Task
+		 */
+		function fn_get_task() {
+			showLoadingSpinner();
+
+			$.ajax({
+				type: "GET",
+				url: "<?php echo base_url() . 'index.php/EmployeeTasks/getListTask'?>",
+				success:function(datas) {
+					hideLoadingSpinner();
+
+					let tasks = datas.data;
+
+					/* remap data */
+					tasks.map(function (data,i) {
+						data.no = i+1;
+
+						let statusClass = "";
+
+						if (data.status == "onprogres") {
+							statusClass = "secondary";
+						} 
+						else if (data.status == "checking") {
+							statusClass = "warning";
+						}
+						else if (data.status == "accepted") {
+							statusClass = "success";
+						}
+						else if (data.status == "rejected") {
+							statusClass = "danger";
+						}
+
+						data.status = `<span class="btn btn-outline-${statusClass} btn-sm" style="width: max-content;">
+							${data.status}
+						</span>`;
+
+						data.action = `<span class="btn_delete btn btn-sm bg-secondary">
+								<i class="fas fa-trash"></i>
+							</span>
+							<span class="btn_edit_task btn btn-sm bg-secondary" data-taskid="${data.taskId}" data-toggle="modal" data-target="#modalEditTask">
+								<i class="fas fa-eye"></i>
+							</span>`;
+					})
+
+					/* update data table */
+					$('#table_today_task').DataTable({
+						"bDestroy": true,
+						data   	  : tasks,
+						columns	  : [
+							{ data: 'no' },
+							{ data: 'title' },
+							{ data: 'created_at' },
+							{ data: 'status' },
+							{ data: 'action' },
+						], 
+						columnDefs: [
+							{
+								"targets": [0,2,3,4],
+								"className": "text-center",
+							},
+						]
+					});
+
+					/* enable btn */
+					enableBtnEditTask();
+				},
+				error:function(data) {
+					hideLoadingSpinner();
+					
+					showErrorServer(data);
+				}
+			});
+		}
+
+		fn_get_task();
+
+		/**
+		 * Initial Text Editor
+		 */
+		$('#modalAddTask #description').summernote({
+			toolbar: [
+				['style', ['style']],
+				['font', ['bold', 'underline', 'clear']],
+				['fontname', ['fontname']],
+				['color', ['color']],
+				['para', ['ul', 'ol', 'paragraph']],
+				['table', ['table']],
+				['insert', ['link', 'picture']],
+			],
+		})
+		$('#modalEditTask #description').summernote({
+			toolbar: [
+				['style', ['style']],
+				['font', ['bold', 'underline', 'clear']],
+				['fontname', ['fontname']],
+				['color', ['color']],
+				['para', ['ul', 'ol', 'paragraph']],
+				['table', ['table']],
+				['insert', ['link', 'picture']],
+			],
+		})
+
+		/**
+		 * Document Checked
+		 */
+		function dokUploadCheck(el) {
+
+			if(el.files[0].size > 5000000) {
+				showToast('ukuran dokumen tidak boleh lebih dari 5 mb','warning');
+
+				el.value = "";
+				return false;
+			}
+			else if(/video/.test(el.files[0].type)){
+				showToast('file video tidak diperbolehkan','warning');
+
+				el.value = "";
+				return false;
+			}
+			else {
+				let newAttachment = "";
+				let filesize	  = parseFloat(el.files[0].size/1000000).toFixed(6);
+				let docType		  = el.files[0].type.split('/');
+				let counterAttachmentFile = $('.attachment_input').length;
+
+                if(/image/.test(docType[0])){
+					newAttachment = `<li id="li_attachment_input_${counterAttachmentFile+1}" style="display: flex;flex-direction: column;">
+						<input type="file" name="attachment_input[${counterAttachmentFile+1}]" class="attachment_input" id="attachment_input_${counterAttachmentFile+1}" style="position: absolute;z-index: -100;opacity: 0;max-width:2px;">
+
+						<span class="mailbox-attachment-icon has-img">
+							<img src="${URL.createObjectURL(el.files[0])}" alt="Attachment" style="min-height: 132.5px;max-height: 132.5px;">
+						</span>
+
+						<div class="mailbox-attachment-info" style="flex: 1;display: flex;flex-direction: column;justify-content: space-between;">
+							<a href="#" class="mailbox-attachment-name" style="word-break: break-all;"><i class="fas fa-camera"></i> ${el.files[0].name}</a>
+							<span class="mailbox-attachment-size clearfix mt-3">
+								<span>${filesize} MB</span>
+								<a href="#" class="btn btn-default btn-sm float-right" onclick="removeEl('#li_attachment_input_${counterAttachmentFile+1}')">
+									<i class="fas fa-trash"></i>
+								</a>
+							</span>
+						</div>
+					</li>`;
+				}
+				else {
+					newAttachment = `<li id="li_attachment_input_${counterAttachmentFile+1}" style="display: flex;flex-direction: column;">
+						<input type="file" name="attachment_input[${counterAttachmentFile+1}]" class="attachment_input" id="attachment_input_${counterAttachmentFile+1}" style="position: absolute;z-index: -100;opacity: 0;max-width:2px;">
+
+						<span class="mailbox-attachment-icon"><i class="far fa-file"></i></span>
+	
+						<div class="mailbox-attachment-info" style="flex: 1;display: flex;flex-direction: column;justify-content: space-between;">
+							<a href="#" class="mailbox-attachment-name" style="word-break: break-all;"><i class="fas fa-paperclip"></i> ${el.files[0].name}</a>
+							<span class="mailbox-attachment-size clearfix mt-3">
+								<span>${filesize} MB</span>
+								<a href="#" class="btn btn-default btn-sm float-right" onclick="removeEl('#li_attachment_input_${counterAttachmentFile+1}')">
+									<i class="fas fa-trash"></i>
+								</a>
+							</span>
+						</div>
+					</li>`;
+				}
+
+				$('#attachments_wraper').append(newAttachment);
+				document.getElementById(`attachment_input_${counterAttachmentFile+1}`).files = el.files;
+			}
+		}
+
+		/**
+		 * Remove Element
+		 */
+		function removeEl(targetIdentifier) {
+			$(targetIdentifier).remove();
+		}
+
+		/**
+		 * Remove Error Class
+		 */
+		function clearErrForm(parentId) {
+			$(`${parentId} .is-invalid`).removeClass('is-invalid');
+		}
+		function clearInputForm(parentId) {
+			clearErrForm(parentId);
+			$(`${parentId} input`).val(null);
+			$(`${parentId} textarea`).val(null);
+			$(`${parentId} #attachments_wraper li`).remove();
+		}
+
+		/**
+		 * Add Task
+		 */
+		$('#formAddTask')
+			.submit(function(e) {
+				e.preventDefault();
+			})
+			.validate({
+				rules: {
+					title: {
+						required: true,
+					},
+				},
+				messages: {
+					title: {
+						required: "title required",
+					},
+				},
+				errorElement: 'span',
+				errorPlacement: function (error, element) {
+					error.addClass('invalid-feedback');
+					element.closest('.form-group').append(error);
+				},
+				highlight: function (element, errorClass, validClass) {
+					$(element).addClass('is-invalid');
+				},
+				unhighlight: function (element, errorClass, validClass) {
+					$(element).removeClass('is-invalid');
+				},
+				submitHandler: function () {
+					showLoadingSpinner();
+					clearErrForm("#formAddTask");
+
+					let form = new FormData(document.querySelector('#formAddTask')); 
+
+					$.ajax({
+						type: "POST",
+						url: "<?php echo base_url() . 'index.php/EmployeeTasks/AddTask'?>",
+						data: form,
+						cache: false,
+						processData:false,
+						contentType: false,
+						headers		: {
+							'token': $.cookie("_jwttoken"),
+						},
+						success:function(data) {
+							hideLoadingSpinner();
+
+							showToast("task successfully <b>added..!</b>",'success');
+							$('#modalAddTask').modal('hide');
+							fn_get_task();
+						},
+						error:function(data) {
+							hideLoadingSpinner();
+
+							if (data.status != 400) {
+								showErrorServer(data);
+							}
+							else if (data.status == 400) {
+								for (const key in data.responseJSON) {
+									$(`input[name=${key}]`).addClass('is-invalid');
+									showToast(`${data.responseJSON[key]}`,'warning');
+								}
+							}
+						}
+					});
+				}
+			})
+
+		/**
+		 * Edit Task
+		 */
+		function enableBtnEditTask() {
+			$('.btn_edit_task').each(function () {
+				$(this).on("click", function (params) {
+					showLoadingSpinner();
+					clearErrForm('#formEditTask');
+					let taskId = $(this).attr("data-taskid");
+					
+					$.ajax({
+						type: "GET",
+						url: "<?php echo base_url() . 'index.php/EmployeeTasks/getDetilTask?taskId='?>"+taskId,
+						headers		: {
+							'token': $.cookie("_jwttoken"),
+						},
+						success:function(datas) {
+							hideLoadingSpinner();
+
+							// data task
+							let statusClass = "";
+
+							if (datas.data.status == "onprogres") {
+								statusClass = "secondary";
+							} 
+							else if (datas.data.status == "checking") {
+								statusClass = "warning";
+							}
+							else if (datas.data.status == "accepted") {
+								statusClass = "success";
+							}
+							else if (datas.data.status == "rejected") {
+								statusClass = "danger";
+							}
+
+							$('#formEditTask #status_wraper').html(`<span class="btn btn-outline-${statusClass} btn-sm" style="width: max-content;">
+								${datas.data.status}
+							</span>`);
+
+							$('#formEditTask #title').val(datas.data.title);
+							$('#modalEditTask #description').summernote("code",datas.data.description);
+
+							// task documents
+							let liEl = "";
+
+							datas.data.documents.forEach(doc => {
+								if (doc.file_type == "image") {
+									liEl += `<li>
+										<span class="mailbox-attachment-icon has-img">
+											<img src="${doc.file_url}" alt="Attachment" style="min-height: 132.5px;max-height: 132.5px;">
+										</span>
+
+										<div class="mailbox-attachment-info">
+											<a href="#" class="mailbox-attachment-name" style="word-break: break-all;"><i class="fas fa-camera"></i> ${doc.file_name}</a>
+											<span class="mailbox-attachment-size clearfix mt-3">
+												<a href="${doc.file_url}" target="_blank" class="btn btn-default btn-sm float-right ml-2">
+													<i class="fas fa-cloud-download-alt"></i>
+												</a>
+												<a href="#" class="btn btn-default btn-sm float-right" onclick="removeDoc('${doc.docId}')">
+													<i class="fas fa-trash"></i>
+												</a>
+											</span>
+										</div>
+									</li>`;
+								} else {
+									liEl += `<li>
+										<span class="mailbox-attachment-icon"><i class="far fa-file"></i></span>
+					
+										<div class="mailbox-attachment-info">
+											<a href="#" class="mailbox-attachment-name" style="word-break: break-all;"><i class="fas fa-paperclip"></i> ${doc.file_name}</a>
+											<span class="mailbox-attachment-size clearfix mt-3">
+												<a href="${doc.file_url}" target="_blank" class="btn btn-default btn-sm float-right ml-2">
+													<i class="fas fa-cloud-download-alt"></i>
+												</a>
+												<a href="#" class="btn btn-default btn-sm float-right" onclick="removeDoc('${doc.docId}')">
+													<i class="fas fa-trash"></i>
+												</a>
+											</span>
+										</div>
+									</li>`;
+								}
+							});
+
+							$("#attachments_wraper_old").html(liEl);
+						},
+						error:function(data) {
+							hideLoadingSpinner();
+							
+							showErrorServer(data);
+						}
+					});
+
+				})
+			})
+		}
 	</script>
 </body>
 </html>

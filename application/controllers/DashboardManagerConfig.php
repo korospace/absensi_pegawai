@@ -71,9 +71,9 @@ class DashboardManagerConfig extends CI_Controller {
 
 		$this->form_validation->set_rules(
 			'meet_link','Link Meeting',
-			'max_length[500]',
+			'max_length[250]',
 			array(
-				'max_length'=> '%s maxinal 500 char',
+				'max_length'=> '%s maxinal 250 char',
 			)
 		);
 		$this->form_validation->set_rules(

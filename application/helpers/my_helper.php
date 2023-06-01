@@ -22,6 +22,17 @@ function getProfilePath(): array
 }
 
 /**
+ * Get Task Document Path 
+ */
+function getTaskDocPath(): array
+{
+	return [
+        'original'  => base_url().'assets/task_document/',
+        'base'      => './assets/task_document/',
+	];
+}
+
+/**
  * TOKEN KEY.
  */
 function getKey() : string
@@ -114,19 +125,19 @@ function generateSalam()
 	$x = "";
 
 	if ($end-$start <= 86400) {
-		$x = "malam";
+		$x = "night";
 	}
 	if ($end-$start <= 64800) {
-		$x = "sore";
+		$x = "afternoon";
 	}
 	if ($end-$start <= 54000) {
-		$x = "siang";
+		$x = "afternoon";
 	}
 	if ($end-$start <= 36000) {
-		$x = "pagi";
+		$x = "morning";
 	}
 
-	return "selamat " . $x . "";
+	return "Good " . $x . "";
 }
 
 /**

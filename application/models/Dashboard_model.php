@@ -7,7 +7,7 @@ class Dashboard_model extends CI_Model
 	 * - make sure you have added the database library to the autoload.php
 	 */
 
-	/* Get Name */
+	/* Get Name - MANAGER*/
     function getManagerName($userId)
     {
 		$this->db->select('name');
@@ -17,6 +17,7 @@ class Dashboard_model extends CI_Model
 		return strtoupper(explode(" ",$query->first_row()->name)[0]);
     }
 
+	/* Get Name - EMPLOYEE */
 	function getEmployeeName($userId)
     {
 		$this->db->select('name');

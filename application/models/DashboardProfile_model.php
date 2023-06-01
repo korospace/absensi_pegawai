@@ -7,8 +7,10 @@ class DashboardProfile_model extends CI_Model
 	 * - make sure you have added the database library to the autoload.php
 	 */
 
-	## Get Profle - Manager
-    function getDataProfileManager($userId)
+	/**
+	 * Get Profle - Manager
+	 */
+    public function getDataProfileManager($userId)
     {
 		$this->db->select('u.userId,u.username,u.status,e.managerId,e.name,e.phone,e.img_profile');
 		$this->db->from('users u');
@@ -26,8 +28,10 @@ class DashboardProfile_model extends CI_Model
 		];
     }
 
-	## Get Profle - Employee
-    function getDataProfileEmployee($userId)
+	/**
+	 * Get Profle - Employee
+	 */
+    public function getDataProfileEmployee($userId)
     {
 		$this->db->select('u.userId,u.username,u.status,e.employeeId,e.name,e.phone,e.img_profile');
 		$this->db->from('users u');
@@ -45,7 +49,9 @@ class DashboardProfile_model extends CI_Model
 		];
     }
 
-	## Edit Profile - Manager
+	/**
+	 * Edit Profile - Manager
+	 */
 	public function editProfileManager($input,$userId,$controller)
 	{
 		$affectedRows = 0;
@@ -91,7 +97,9 @@ class DashboardProfile_model extends CI_Model
 		];
 	}
 
-	## Edit Profile - Employee
+	/**
+	 * Edit Profile - Employee
+	 */
 	public function editProfileEmployee($input,$userId,$controller)
 	{
 		$affectedRows = 0;
@@ -137,6 +145,7 @@ class DashboardProfile_model extends CI_Model
 		];
 	}
 
+	## Get Old Profile Img
 	protected function getOldProfileImg($tableName,$userId)
 	{
 		$this->db->select('img_profile');

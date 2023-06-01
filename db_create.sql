@@ -2,6 +2,10 @@
 	DROP table
 	================================================ 
 */
+DROP TABLE IF EXISTS db_ci3_absensi_pegawai.employee_task_documents;
+
+DROP TABLE IF EXISTS db_ci3_absensi_pegawai.employee_tasks;
+
 DROP TABLE IF EXISTS db_ci3_absensi_pegawai.manager_configs;
 
 DROP TABLE IF EXISTS db_ci3_absensi_pegawai.employees;
@@ -67,7 +71,7 @@ CREATE TABLE employees
     updated_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY(employeeId),
-	CONSTRAINT  fk_employees_users FOREIGN KEY (userId) REFERENCES users (userId) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT  fk_employees_users    FOREIGN KEY (userId)    REFERENCES users (userId)       ON DELETE CASCADE ON UPDATE CASCADE,
 	CONSTRAINT  fk_employees_managers FOREIGN KEY (managerId) REFERENCES managers (managerId) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
@@ -75,7 +79,7 @@ CREATE TABLE manager_configs
 (
     configId    	INT(11)      AUTO_INCREMENT,
     managerId   	INT(11)      NOT NULL,
-    meet_link   	text         DEFAULT NULL,
+    meet_link   	VARCHAR(250) DEFAULT NULL,
     meet_time_show  VARCHAR(8)   DEFAULT NULL,
     meet_time_hide  VARCHAR(8)   DEFAULT NULL,
     meet_days_show  VARCHAR(60)  DEFAULT NULL,
@@ -84,6 +88,35 @@ CREATE TABLE manager_configs
 
     PRIMARY KEY(configId),
 	CONSTRAINT  fk_manager_config_managers FOREIGN KEY (managerId) REFERENCES managers (managerId) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE employee_tasks
+(
+    taskId      INT(11)       AUTO_INCREMENT,
+    employeeId  INT(11)       NOT NULL,
+    managerId	INT(11)       DEFAULT NULL,
+    title       VARCHAR(300)  NOT NULL,
+    description TEXT		  DEFAULT NULL,
+    instruction TEXT		  DEFAULT NULL,
+	status		ENUM('onprogres','checking','rejected','accepted') DEFAULT 'onprogres',
+    created_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY(taskId),
+	CONSTRAINT  fk_task_employees FOREIGN KEY (employeeId) REFERENCES employees (employeeId) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT  fk_task_managers  FOREIGN KEY (managerId)  REFERENCES managers (managerId)   ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE employee_task_documents
+(
+    docId       INT(11)       AUTO_INCREMENT,
+    taskId      INT(11)       NOT NULL,
+    file_name   VARCHAR(100)  NOT NULL,
+    created_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY(docId),
+	CONSTRAINT  fk_document_task FOREIGN KEY (taskId) REFERENCES employee_tasks (taskId) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 /* 
@@ -134,10 +167,3 @@ INSERT INTO employees (userId,managerId,name) VALUES (
 	2,
 	'rilo anggoro'
 );
-
--- INSERT INTO manager_configs (managerId) VALUES (
--- 	1
--- );
--- INSERT INTO manager_configs (managerId) VALUES (
--- 	2
--- );
