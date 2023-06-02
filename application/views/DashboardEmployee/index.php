@@ -265,7 +265,7 @@
 							<div class="form-group">
 								<div class="btn btn-default btn-file">
 									<i class="fas fa-paperclip"></i> Attachment
-									<input type="file" name="attachment" id="attachment_input_leader" onchange="dokUploadCheck(this)">
+									<input type="file" name="attachment" id="attachment_input_leader" onchange="dokUploadCheck(this, '#formAddTask')">
 								</div>
 								<p class="help-block">Max. 5MB</p>
 							</div>
@@ -295,6 +295,8 @@
 				</div>
 				<div class="modal-body pt-4 pb-3">
 					<div class="row">
+						<input type="hidden" id="taskId" name="taskId">
+
 						<!-- status -->
 						<div class="col-12" id="status_wraper">
 						</div>
@@ -333,7 +335,7 @@
 							<div class="form-group">
 								<div class="btn btn-default btn-file">
 									<i class="fas fa-paperclip"></i> Attachment
-									<input type="file" name="attachment" id="attachment_input_leader" onchange="dokUploadCheck(this)">
+									<input type="file" name="attachment" id="attachment_input_leader" onchange="dokUploadCheck(this, '#formEditTask')">
 								</div>
 								<p class="help-block">Max. 5MB</p>
 							</div>
@@ -470,7 +472,7 @@
 			});
 		}
 
-		intervalGetMeetLink = setInterval(getMeetLink, 5000);
+		intervalGetMeetLink = setInterval(getMeetLink, 4000);
 
 		/**
 		 * Initial Table Task (today)
@@ -592,7 +594,7 @@
 		/**
 		 * Document Checked
 		 */
-		function dokUploadCheck(el) {
+		function dokUploadCheck(el,formTarget) {
 
 			if(el.files[0].size > 5000000) {
 				showToast('ukuran dokumen tidak boleh lebih dari 5 mb','warning');
@@ -649,8 +651,8 @@
 					</li>`;
 				}
 
-				$('#attachments_wraper').append(newAttachment);
-				document.getElementById(`attachment_input_${counterAttachmentFile+1}`).files = el.files;
+				$(`${formTarget} #attachments_wraper`).append(newAttachment);
+				document.querySelector(`${formTarget} #attachment_input_${counterAttachmentFile+1}`).files = el.files;
 			}
 		}
 
@@ -670,7 +672,7 @@
 		function clearInputForm(parentId) {
 			clearErrForm(parentId);
 			$(`${parentId} input`).val(null);
-			$(`${parentId} textarea`).val(null);
+			$(`${parentId} #description`).summernote("code",null);
 			$(`${parentId} #attachments_wraper li`).remove();
 		}
 
@@ -749,93 +751,210 @@
 		function enableBtnEditTask() {
 			$('.btn_edit_task').each(function () {
 				$(this).on("click", function (params) {
-					showLoadingSpinner();
-					clearErrForm('#formEditTask');
+					clearInputForm('#formEditTask');
+
 					let taskId = $(this).attr("data-taskid");
+					getDetilTask(taskId);
+				})
+			})
+		}
+		
+		function getDetilTask(taskId) {
+			showLoadingSpinner();
+
+			$.ajax({
+				type: "GET",
+				url: "<?php echo base_url() . 'index.php/EmployeeTasks/getDetilTask?taskId='?>"+taskId,
+				headers		: {
+					'token': $.cookie("_jwttoken"),
+				},
+				success:function(datas) {
+					hideLoadingSpinner();
+	
+					// data task
+					let statusClass = "";
+	
+					if (datas.data.status == "onprogres") {
+						statusClass = "secondary";
+					} 
+					else if (datas.data.status == "checking") {
+						statusClass = "warning";
+					}
+					else if (datas.data.status == "accepted") {
+						statusClass = "success";
+					}
+					else if (datas.data.status == "rejected") {
+						statusClass = "danger";
+					}
+	
+					$('#formEditTask #status_wraper').html(`<span class="btn btn-outline-${statusClass} btn-sm" style="width: max-content;">
+						${datas.data.status}
+					</span>`);
+	
+					$('#formEditTask #taskId').val(datas.data.taskId);
+					$('#formEditTask #title').val(datas.data.title);
+					$('#modalEditTask #description').summernote("code",datas.data.description);
+	
+					// task documents
+					let liEl = "";
+	
+					datas.data.documents.forEach(doc => {
+						if (doc.file_type == "image") {
+							liEl += `<li>
+								<span class="mailbox-attachment-icon has-img">
+									<img src="${doc.file_url}" alt="Attachment" style="min-height: 132.5px;max-height: 132.5px;">
+								</span>
+	
+								<div class="mailbox-attachment-info">
+									<a href="#" class="mailbox-attachment-name" style="word-break: break-all;"><i class="fas fa-camera"></i> ${doc.file_name}</a>
+									<span class="mailbox-attachment-size clearfix mt-3">
+										<a href="${doc.file_url}" target="_blank" class="btn btn-default btn-sm float-right ml-2">
+											<i class="fas fa-cloud-download-alt"></i>
+										</a>
+										<a href="#" class="btn btn-default btn-sm float-right" onclick="removeDoc('${doc.docId}','${datas.data.taskId}')">
+											<i class="fas fa-trash"></i>
+										</a>
+									</span>
+								</div>
+							</li>`;
+						} else {
+							liEl += `<li>
+								<span class="mailbox-attachment-icon"><i class="far fa-file"></i></span>
+			
+								<div class="mailbox-attachment-info">
+									<a href="#" class="mailbox-attachment-name" style="word-break: break-all;"><i class="fas fa-paperclip"></i> ${doc.file_name}</a>
+									<span class="mailbox-attachment-size clearfix mt-3">
+										<a href="${doc.file_url}" target="_blank" class="btn btn-default btn-sm float-right ml-2">
+											<i class="fas fa-cloud-download-alt"></i>
+										</a>
+										<a href="#" class="btn btn-default btn-sm float-right" onclick="removeDoc('${doc.docId}','${datas.data.taskId}')">
+											<i class="fas fa-trash"></i>
+										</a>
+									</span>
+								</div>
+							</li>`;
+						}
+					});
+	
+					$("#attachments_wraper_old").html(liEl);
+				},
+				error:function(data) {
+					hideLoadingSpinner();
 					
+					showErrorServer(data);
+				}
+			});
+		}
+
+		$('#formEditTask')
+			.submit(function(e) {
+				e.preventDefault();
+			})
+			.validate({
+				rules: {
+					title: {
+						required: true,
+					},
+				},
+				messages: {
+					title: {
+						required: "title required",
+					},
+				},
+				errorElement: 'span',
+				errorPlacement: function (error, element) {
+					error.addClass('invalid-feedback');
+					element.closest('.form-group').append(error);
+				},
+				highlight: function (element, errorClass, validClass) {
+					$(element).addClass('is-invalid');
+				},
+				unhighlight: function (element, errorClass, validClass) {
+					$(element).removeClass('is-invalid');
+				},
+				submitHandler: function () {
+					let status = $("#status_wraper span").html().trim();
+					
+					if (status == "checking") {
+						showToast("please wait, this task under <b>checking</b>",'info');
+						return 0;
+					}
+
+					showLoadingSpinner();
+					clearErrForm("#formEditTask");
+
+					let form = new FormData(document.querySelector('#formEditTask')); 
+
 					$.ajax({
-						type: "GET",
-						url: "<?php echo base_url() . 'index.php/EmployeeTasks/getDetilTask?taskId='?>"+taskId,
+						type: "POST",
+						url: "<?php echo base_url() . 'index.php/EmployeeTasks/EditTask'?>",
+						data: form,
+						cache: false,
+						processData:false,
+						contentType: false,
 						headers		: {
 							'token': $.cookie("_jwttoken"),
 						},
-						success:function(datas) {
+						success:function(data) {
 							hideLoadingSpinner();
 
-							// data task
-							let statusClass = "";
-
-							if (datas.data.status == "onprogres") {
-								statusClass = "secondary";
-							} 
-							else if (datas.data.status == "checking") {
-								statusClass = "warning";
-							}
-							else if (datas.data.status == "accepted") {
-								statusClass = "success";
-							}
-							else if (datas.data.status == "rejected") {
-								statusClass = "danger";
-							}
-
-							$('#formEditTask #status_wraper').html(`<span class="btn btn-outline-${statusClass} btn-sm" style="width: max-content;">
-								${datas.data.status}
-							</span>`);
-
-							$('#formEditTask #title').val(datas.data.title);
-							$('#modalEditTask #description').summernote("code",datas.data.description);
-
-							// task documents
-							let liEl = "";
-
-							datas.data.documents.forEach(doc => {
-								if (doc.file_type == "image") {
-									liEl += `<li>
-										<span class="mailbox-attachment-icon has-img">
-											<img src="${doc.file_url}" alt="Attachment" style="min-height: 132.5px;max-height: 132.5px;">
-										</span>
-
-										<div class="mailbox-attachment-info">
-											<a href="#" class="mailbox-attachment-name" style="word-break: break-all;"><i class="fas fa-camera"></i> ${doc.file_name}</a>
-											<span class="mailbox-attachment-size clearfix mt-3">
-												<a href="${doc.file_url}" target="_blank" class="btn btn-default btn-sm float-right ml-2">
-													<i class="fas fa-cloud-download-alt"></i>
-												</a>
-												<a href="#" class="btn btn-default btn-sm float-right" onclick="removeDoc('${doc.docId}')">
-													<i class="fas fa-trash"></i>
-												</a>
-											</span>
-										</div>
-									</li>`;
-								} else {
-									liEl += `<li>
-										<span class="mailbox-attachment-icon"><i class="far fa-file"></i></span>
-					
-										<div class="mailbox-attachment-info">
-											<a href="#" class="mailbox-attachment-name" style="word-break: break-all;"><i class="fas fa-paperclip"></i> ${doc.file_name}</a>
-											<span class="mailbox-attachment-size clearfix mt-3">
-												<a href="${doc.file_url}" target="_blank" class="btn btn-default btn-sm float-right ml-2">
-													<i class="fas fa-cloud-download-alt"></i>
-												</a>
-												<a href="#" class="btn btn-default btn-sm float-right" onclick="removeDoc('${doc.docId}')">
-													<i class="fas fa-trash"></i>
-												</a>
-											</span>
-										</div>
-									</li>`;
-								}
-							});
-
-							$("#attachments_wraper_old").html(liEl);
+							showToast("task successfully <b>updated..!</b>",'success');
+							$(`#formEditTask #attachments_wraper li`).remove();
+							getDetilTask(form.get("taskId"));
+							fn_get_task();
 						},
 						error:function(data) {
 							hideLoadingSpinner();
-							
-							showErrorServer(data);
+
+							if (data.status != 400) {
+								showErrorServer(data);
+							}
+							else if (data.status == 400) {
+								for (const key in data.responseJSON) {
+									$(`input[name=${key}]`).addClass('is-invalid');
+									showToast(`${data.responseJSON[key]}`,'warning');
+								}
+							}
 						}
 					});
+				}
+			})
 
-				})
+		/**
+		 * Remove Doc
+		 */
+		function removeDoc(docId,taskId) {
+			Swal.fire({
+				title: `Are you sure?`,
+				text: "This document will be permanent deleted",
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#3085d6',
+				cancelButtonColor: '#6E7881',
+				confirmButtonText: 'yes',
+				cancelButtonText: 'close',
+			}).then((result) => {
+				if (result.isConfirmed) {
+					showLoadingSpinner();
+
+					$.ajax(
+					{
+						type: "GET",
+						url: "<?php echo base_url() . 'index.php/EmployeeTasks/deleteDoc?docId='?>"+docId,
+						headers		: {
+							'token': $.cookie("_jwttoken"),
+						},
+						success: function (data) {
+							hideLoadingSpinner();
+							showToast('document successfully <b>deleted..!</b>','success');
+							getDetilTask(taskId);
+						},
+						error: function (data) {
+							hideLoadingSpinner();
+							showErrorServer(data);
+						},
+					});
+				}
 			})
 		}
 	</script>

@@ -92,18 +92,19 @@ class DashboardManagerConfig_model extends CI_Model
 
         $query = $this->db->get('manager_configs');
 		$query = $query->first_row();
+		$link  = "";
 
-		$link = "";
-
-		$today      = strtolower(date("l", time()));
-		$configDays = explode(",", $query->meet_days_show);
-		
-		if (in_array($today,$configDays)) {
-			$configTimeShowUnix = strtotime(date("d-m-Y", time()) . " " . $query->meet_time_show . ":00");
-			$configTimeHideUnix = strtotime(date("d-m-Y", time()) . " " . $query->meet_time_hide . ":00");
+		if ($query) {
+			$today      = strtolower(date("l", time()));
+			$configDays = explode(",", $query->meet_days_show);
 			
-			if (time() >= $configTimeShowUnix && time() <= $configTimeHideUnix) {
-				$link = $query->meet_link;
+			if (in_array($today,$configDays)) {
+				$configTimeShowUnix = strtotime(date("d-m-Y", time()) . " " . $query->meet_time_show . ":00");
+				$configTimeHideUnix = strtotime(date("d-m-Y", time()) . " " . $query->meet_time_hide . ":00");
+				
+				if (time() >= $configTimeShowUnix && time() <= $configTimeHideUnix) {
+					$link = $query->meet_link;
+				}
 			}
 		}
 
