@@ -911,11 +911,11 @@
 					let status = $("#status_wraper span").html().trim();
 					
 					if (status == "checking") {
-						showToast("please wait, this task under <b>CHECKING</b>",'info');
+						showToast("please wait, this task is under <b>CHECKING</b>",'info');
 						return 0;
 					}
 					else if (status == "accepted") {
-						showToast("Congrats, this task is <b>ACCEPTED</b>",'success');
+						showToast("Congrats, this task has been <b>ACCEPTED</b>",'success');
 						return 0;
 					}
 

@@ -24,7 +24,16 @@ class EmployeeTask_model extends CI_Model
 		$endDate   = "";
 
 		if ($input->get('startDate') && $input->get('endDate')) {
-			# code...
+			$startDate = date("Y-m-d", strtotime($input->get('startDate'))) . " 00:00:00";
+			$endDate   = date("Y-m-d", strtotime($input->get('endDate'))) . " 23:59:00";
+
+			if (strtotime($endDate)-strtotime($startDate) > 2678400) {
+				return [
+					'code'    => 401,
+					'status'  => true,
+					'message' => "maksimal rentang adalah 31 hari"
+				];
+			}
 		} 
 		else {
 			$startDate = date("Y-m-d", time()) . " 00:00:00";
