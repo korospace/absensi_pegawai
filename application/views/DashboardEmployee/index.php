@@ -15,6 +15,8 @@
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/datatable/dataTables.bootstrap4.min.css') ?>">
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/datatable/responsive.bootstrap4.min.css') ?>">
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/datatable/buttons.bootstrap4.min.css') ?>">
+	<!-- daterange picker -->
+	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/daterangepicker.css') ?>">
 	<!-- Theme style -->
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/adminlte.min.css'); ?>">
 	<!-- summernote -->
@@ -170,7 +172,9 @@
 														<a class="nav-link text-secondary active" id="today_task_tab" data-toggle="pill" href="#today_task" role="tab" aria-controls="today_task" aria-selected="true">Today</a>
 													</li>
 													<li class="nav-item">
-														<a class="nav-link text-secondary" id="all_task_tab" data-toggle="pill" href="#all_task" role="tab" aria-controls="all_task" aria-selected="false">All</a>
+														<a class="nav-link text-secondary" id="all_task_tab" data-toggle="pill" href="#all_task" role="tab" aria-controls="all_task" aria-selected="false" onclick="showTabAllTask()">
+															All
+														</a>
 													</li>
 												</ul>
 											</div>
@@ -213,7 +217,49 @@
 														</div>
 													</div>
 													<div class="tab-pane fade" id="all_task" role="tabpanel" aria-labelledby="all_task_tab">
-														All
+														<div class="row justify-content-end">
+															<div class="col-md-4">
+																<div class="input-group">
+																	<div class="input-group-prepend">
+																		<span class="input-group-text">
+																			<i class="far fa-calendar-alt"></i>
+																		</span>
+																	</div>
+																	<input type="text" class="form-control float-right" id="date_range_all_task">
+																</div>
+															</div>
+														</div>
+														<div class="row mt-4">
+															<div class="col-md-12">
+																<table class="table table-bordered table-hover" id="table_all_task">
+																	<thead>
+																		<tr>
+																			<th class="text-center">
+																				#
+																			</th>
+																			<th>
+																				Employee
+																			</th>
+																			<th>
+																				Title
+																			</th>
+																			<th class="text-center">
+																				Created At
+																			</th>
+																			<th class="text-center">
+																				Status
+																			</th>
+																			<th class="text-center">
+																				Action
+																			</th>
+																		</tr>
+																	</thead>
+																	<tbody>
+
+																	</tbody>
+																</table>
+															</div>
+														</div>
 													</div>
 												</div>
 											</div>
@@ -391,6 +437,9 @@
 	<script src="<?= base_url('assets/js/plugins/datatable/jquery.dataTables.min.js') ?>"></script>
 	<script src="<?= base_url('assets/js/plugins/datatable/dataTables.bootstrap4.min.js') ?>"></script>
 	<script src="<?= base_url('assets/js/plugins/datatable/dataTables.buttons.min.js') ?>"></script>
+	<!-- date-range-picker -->
+	<script src="<?= base_url('assets/js/plugins/moment.min.js') ?>"></script>
+	<script src="<?= base_url('assets/js/plugins/daterangepicker.js') ?>"></script>
 	<!-- AdminLTE App -->
 	<script src="<?= base_url('assets/js/plugins/adminlte.min.js') ?>"></script>
 	<!-- Summernote -->
@@ -1033,6 +1082,149 @@
 					});
 				}
 			})
+		}
+
+		/**
+		 * Initial Date Range Picker
+		 */
+		$('#date_range_all_task').daterangepicker()
+
+		$('#date_range_all_task').on("change", function () {
+			fn_get_all_task();
+		})
+
+		let setCurrentStartDate = () =>  {
+			let currentUnixTime = new Date(new Date().getTime());
+
+			let currentDay   = currentUnixTime.toLocaleString("en-US",{day: "2-digit"});
+			let currentMonth = currentUnixTime.toLocaleString("en-US",{month: "2-digit"});
+			let currentYear  = currentUnixTime.toLocaleString("en-US",{year: "numeric"});
+
+			$('#date_range_all_task').val(`${currentMonth}/01/${currentYear} - ${currentMonth}/${currentDay}/${currentYear}`)
+		}
+
+		setCurrentStartDate()
+
+		/**
+		 * Initial Table Task (All today)
+		 */
+		$("#table_all_task").DataTable({
+			"bDestroy"		: true,
+			"paging"    	: true,
+			"searching" 	: true,
+			"ordering"  	: true,
+			"retrieve"		: true,
+			"lengthChange"	: false,
+			"info"			: true,
+			"autoWidth"		: false,
+			"responsive"	: true,
+		});
+
+		/**
+		 * Get All Task
+		 */
+		function showTabAllTask() {
+			showLoadingSpinner();
+
+			setTimeout(() => {
+				fn_get_all_task(false);
+			}, 140);
+		}
+
+		function fn_get_all_task(showLoading=true) {
+			if (showLoading) {
+				showLoadingSpinner();
+			}
+			
+			let dateStart = $('#date_range_all_task').val().split("-")[0].trim();
+			let dateEnd   = $('#date_range_all_task').val().split("-")[1].trim();
+
+			$.ajax({
+				type: "GET",
+				url: "<?php echo base_url() . 'index.php/EmployeeTasks/getListTask?startDate='?>"+dateStart+"&endDate="+dateEnd,
+				headers		: {
+					'token': $.cookie("_jwttoken"),
+				},
+				success:function(datas) {
+					hideLoadingSpinner();
+
+					let tasks = datas.data;
+					let totOnprogres = 0;
+					let totChecking  = 0;
+					let totRevision  = 0;
+					let totAccepted  = 0;
+
+					/* remap data */
+					tasks.map(function (data,i) {
+						data.no = i+1;
+
+						let statusClass = "";
+
+						if (data.status == "onprogres") {
+							statusClass = "secondary";
+							totOnprogres++;
+						} 
+						else if (data.status == "checking") {
+							statusClass = "warning";
+							totChecking++;
+						}
+						else if (data.status == "accepted") {
+							statusClass = "success";
+							totAccepted++;
+						}
+						else if (data.status == "revision") {
+							statusClass = "danger";
+							totRevision++;
+						}
+
+						data.action = "";
+
+						if (data.managerId) {
+							data.action += `<span class="btn_delete btn btn-sm bg-secondary mr-2" onclick="removeTask('${data.taskId}')">
+								<i class="fas fa-trash"></i>
+							</span>`;
+						}
+
+						data.action += `<span class="btn_edit_task btn btn-sm bg-secondary" data-toggle="modal" data-target="#modalEditTask" onclick="editTask('${data.taskId}')">
+							<i class="fas fa-edit"></i>
+						</span>`;
+
+						data.status = `<span class="btn btn-outline-${statusClass} btn-sm" style="width: max-content;">
+							${data.status}
+						</span>`;
+					})
+
+					$('#all_task #status_onprogress').html(totOnprogres);
+					$('#all_task #status_checking').html(totChecking);
+					$('#all_task #status_accepted').html(totAccepted);
+					$('#all_task #status_revision').html(totRevision);
+
+					/* update data table */
+					$('#table_all_task').DataTable({
+						"bDestroy": true,
+						data   	  : tasks,
+						columns	  : [
+							{ data: 'no' },
+							{ data: 'name' },
+							{ data: 'title' },
+							{ data: 'created_at' },
+							{ data: 'status' },
+							{ data: 'action' },
+						], 
+						columnDefs: [
+							{
+								"targets": [0,2,3,4,5],
+								"className": "text-center",
+							},
+						]
+					});
+				},
+				error:function(data) {
+					hideLoadingSpinner();
+					
+					showErrorServer(data);
+				}
+			});
 		}
 	</script>
 </body>
