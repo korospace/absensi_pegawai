@@ -23,10 +23,10 @@ class EmployeeTasks extends CI_Controller {
 	 */
 	public function getListTask()
 	{
-		$token     = isset($_COOKIE['_jwttoken']) ? $_COOKIE['_jwttoken'] : null;
+		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
         $dataToken = checkToken($token, true);
 
-		$dbResponse = $this->EmployeeTask_model->getListTask($dataToken['data']);
+		$dbResponse = $this->EmployeeTask_model->getListTask($this->input,$dataToken['data']);
 
 		return $this->output
 			->set_content_type('application/json')
@@ -114,6 +114,22 @@ class EmployeeTasks extends CI_Controller {
 		}
 
 		$dbResponse = $this->EmployeeTask_model->editTask($this->input,$dataToken['data']);
+
+		return $this->output
+			->set_content_type('application/json')
+			->set_status_header($dbResponse['code'])
+			->set_output(json_encode($dbResponse));
+	}
+
+	/**
+	 * API - Delete Task
+	 */
+	public function deleteTask()
+	{
+		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
+        $dataToken = checkToken($token, true);
+
+		$dbResponse = $this->EmployeeTask_model->deleteTask($this->input,$dataToken['data']);
 
 		return $this->output
 			->set_content_type('application/json')

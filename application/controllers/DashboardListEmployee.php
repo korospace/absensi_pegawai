@@ -62,6 +62,23 @@ class DashboardListEmployee extends CI_Controller {
 	}
 
 	/**
+	 * Api - Get Employee By Name
+	 * ==========================
+	 */
+	public function getEmployeeByName()
+	{
+		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
+        $dataToken = checkToken($token, true);
+
+		$dbResponse = $this->DashboardListEmployee_model->getEmployeeByName($this->input,$dataToken['data']);
+
+		return $this->output
+			->set_content_type('application/json')
+			->set_status_header($dbResponse['code'])
+			->set_output(json_encode($dbResponse['data']));
+	}
+
+	/**
 	 * Api - Get Detil Employee
 	 * ==========================
 	 */

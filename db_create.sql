@@ -98,7 +98,7 @@ CREATE TABLE employee_tasks
     title       VARCHAR(300)  NOT NULL,
     description TEXT		  DEFAULT NULL,
     instruction TEXT		  DEFAULT NULL,
-	status		ENUM('onprogres','checking','rejected','accepted') DEFAULT 'onprogres',
+	status		ENUM('onprogres','checking','accepted','revision') DEFAULT 'onprogres',
     created_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
 

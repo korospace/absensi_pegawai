@@ -307,13 +307,18 @@
 								<input type="text" class="form-control" id="title" name="title" placeholder="Title:">
 							</div>
 						</div>
-						<!-- description -->
-						<div class="col-12">
-							<div class="form-group">
-								<label for="">Description:</label>
-								<textarea id="description" name="description" class="form-control" style="height: 300px">
-									
-								</textarea>
+						<!-- instruction -->
+						<div class="col-12 mt-2" id="instruction">
+							<div class="card card-secondary card-outline" style="min-height: 250px;">
+								<div class="card-header">
+									<h3 class="card-title">Instruction</h3>
+								</div>
+
+								<div class="card-body p-0">
+									<div class="mailbox-read-message">
+										
+									</div>
+								</div>
 							</div>
 						</div>
 						<!-- Old Files -->
@@ -327,6 +332,18 @@
 								</div>
 							</ul>
 						</div>
+						<!-- description -->
+						<div class="col-12">
+							<div class="mt-3 mb-4">
+								<div class="dropdown-divider"></div>
+							</div>
+							<div class="form-group">
+								<label for="">Submission:</label>
+								<textarea id="description" name="description" class="form-control" style="height: 300px">
+									
+								</textarea>
+							</div>
+						</div>
 						<!-- New Files -->
 						<div class="col-12 mt-3 mb-4">
 							<div class="dropdown-divider"></div>
@@ -334,7 +351,7 @@
 						<div class="col-12">
 							<div class="form-group">
 								<div class="btn btn-default btn-file">
-									<i class="fas fa-paperclip"></i> Attachment
+									<i class="fas fa-paperclip"></i> New Attachment
 									<input type="file" name="attachment" id="attachment_input_leader" onchange="dokUploadCheck(this, '#formEditTask')">
 								</div>
 								<p class="help-block">Max. 5MB</p>
@@ -349,7 +366,7 @@
 				</div>
 				<div class="modal-footer justify-content-between">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-					<button type="submit" class="btn btn-success">Save changes</button>
+					<button type="submit" class="btn btn-warning">Request check</button>
 				</div>
 			</form>
 		</div>
@@ -497,6 +514,9 @@
 			$.ajax({
 				type: "GET",
 				url: "<?php echo base_url() . 'index.php/EmployeeTasks/getListTask'?>",
+				headers		: {
+					'token': $.cookie("_jwttoken"),
+				},
 				success:function(datas) {
 					hideLoadingSpinner();
 
@@ -517,20 +537,25 @@
 						else if (data.status == "accepted") {
 							statusClass = "success";
 						}
-						else if (data.status == "rejected") {
+						else if (data.status == "revision") {
 							statusClass = "danger";
 						}
+
+						data.action = "";
+
+						if (data.managerId == null) {
+							data.action += `<span class="btn_delete btn btn-sm bg-secondary mr-2" onclick="removeTask('${data.taskId}')">
+									<i class="fas fa-trash"></i>
+								</span>`;
+						}
+
+						data.action += `<span class="btn_edit_task btn btn-sm bg-secondary" data-toggle="modal" data-target="#modalEditTask" onclick="editTask('${data.taskId}')">
+							<i class="fas fa-edit"></i>
+						</span>`;
 
 						data.status = `<span class="btn btn-outline-${statusClass} btn-sm" style="width: max-content;">
 							${data.status}
 						</span>`;
-
-						data.action = `<span class="btn_delete btn btn-sm bg-secondary">
-								<i class="fas fa-trash"></i>
-							</span>
-							<span class="btn_edit_task btn btn-sm bg-secondary" data-taskid="${data.taskId}" data-toggle="modal" data-target="#modalEditTask">
-								<i class="fas fa-eye"></i>
-							</span>`;
 					})
 
 					/* update data table */
@@ -551,9 +576,6 @@
 							},
 						]
 					});
-
-					/* enable btn */
-					enableBtnEditTask();
 				},
 				error:function(data) {
 					hideLoadingSpinner();
@@ -578,6 +600,7 @@
 				['table', ['table']],
 				['insert', ['link', 'picture']],
 			],
+			minHeight: 200
 		})
 		$('#modalEditTask #description').summernote({
 			toolbar: [
@@ -589,6 +612,7 @@
 				['table', ['table']],
 				['insert', ['link', 'picture']],
 			],
+			minHeight: 200
 		})
 
 		/**
@@ -748,15 +772,11 @@
 		/**
 		 * Edit Task
 		 */
-		function enableBtnEditTask() {
-			$('.btn_edit_task').each(function () {
-				$(this).on("click", function (params) {
-					clearInputForm('#formEditTask');
+		$('#formEditTask #instruction').hide();
 
-					let taskId = $(this).attr("data-taskid");
-					getDetilTask(taskId);
-				})
-			})
+		function editTask(taskId) {
+			clearInputForm('#formEditTask');
+			getDetilTask(taskId);
 		}
 		
 		function getDetilTask(taskId) {
@@ -783,7 +803,7 @@
 					else if (datas.data.status == "accepted") {
 						statusClass = "success";
 					}
-					else if (datas.data.status == "rejected") {
+					else if (datas.data.status == "revision") {
 						statusClass = "danger";
 					}
 	
@@ -794,6 +814,15 @@
 					$('#formEditTask #taskId').val(datas.data.taskId);
 					$('#formEditTask #title').val(datas.data.title);
 					$('#modalEditTask #description').summernote("code",datas.data.description);
+
+					if (datas.data.instruction) {
+						$('#formEditTask #instruction').show();
+						$('#formEditTask #instruction .mailbox-read-message').html(datas.data.instruction);
+					}
+					else {
+						$('#formEditTask #instruction').hide();
+						$('#formEditTask #instruction .mailbox-read-message').html('');
+					}
 	
 					// task documents
 					let liEl = "";
@@ -836,7 +865,13 @@
 						}
 					});
 	
-					$("#attachments_wraper_old").html(liEl);
+					if (liEl != "") {
+						$("#attachments_wraper_old").html(liEl);
+					} else {
+						$("#attachments_wraper_old").html(`<div class="text-center text-muted" style="width: 100%;">
+							<small>No Files Available</small>
+						</div>`);
+					}
 				},
 				error:function(data) {
 					hideLoadingSpinner();
@@ -876,7 +911,11 @@
 					let status = $("#status_wraper span").html().trim();
 					
 					if (status == "checking") {
-						showToast("please wait, this task under <b>checking</b>",'info');
+						showToast("please wait, this task under <b>CHECKING</b>",'info');
+						return 0;
+					}
+					else if (status == "accepted") {
+						showToast("Congrats, this task is <b>ACCEPTED</b>",'success');
 						return 0;
 					}
 
@@ -948,6 +987,44 @@
 							hideLoadingSpinner();
 							showToast('document successfully <b>deleted..!</b>','success');
 							getDetilTask(taskId);
+						},
+						error: function (data) {
+							hideLoadingSpinner();
+							showErrorServer(data);
+						},
+					});
+				}
+			})
+		}
+
+		/**
+		 * Remove Task
+		 */
+		function removeTask(taskId) {
+			Swal.fire({
+				title: `Are you sure?`,
+				text: "Data and all documents will be permanent deleted",
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#3085d6',
+				cancelButtonColor: '#6E7881',
+				confirmButtonText: 'yes',
+				cancelButtonText: 'close',
+			}).then((result) => {
+				if (result.isConfirmed) {
+					showLoadingSpinner();
+
+					$.ajax(
+					{
+						type: "GET",
+						url: "<?php echo base_url() . 'index.php/EmployeeTasks/deleteTask?taskId='?>"+taskId,
+						headers		: {
+							'token': $.cookie("_jwttoken"),
+						},
+						success: function (data) {
+							hideLoadingSpinner();
+							showToast('task successfully <b>deleted..!</b>','success');
+							fn_get_task();
 						},
 						error: function (data) {
 							hideLoadingSpinner();

@@ -26,6 +26,31 @@ class DashboardListEmployee_model extends CI_Model
 		return $query;
     }
 
+	/* Get Employee By Name */
+	public function getEmployeeByName($input,$dataToken)
+	{
+		$this->db->select('e.employeeId,e.name');
+		$this->db->from('employees e');
+		$this->db->join('managers m', 'e.managerId = m.managerId');
+		$this->db->like('e.name', $input->get('name'));
+        $this->db->where('e.NA =', "N");
+        $this->db->where('m.managerId =', $dataToken->userId);
+		$this->db->order_by("e.name", "ASC");
+        $query = $this->db->get();
+        $query = $query->result();
+
+		foreach ($query as $value) {
+			$value->id   = $value->employeeId;
+			$value->text = $value->name;
+		}
+
+		return [
+			'code'    => 200,
+			'status'  => true,
+			'data'    => $query
+		];
+	}
+
 	/* Get Detil Employee */
 	public function getDetilEmployee($input,$dataToken)
 	{
