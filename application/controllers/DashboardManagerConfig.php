@@ -61,10 +61,10 @@ class DashboardManagerConfig extends CI_Controller {
 	}
 
 	/**
-	 * API - Edit Config
+	 * API - Edit Config Meeting
 	 * =====================
 	 */
-	public function editConfig()
+	public function editConfigMeeting()
 	{
 		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
         $dataToken = checkToken($token, true);
@@ -121,7 +121,55 @@ class DashboardManagerConfig extends CI_Controller {
 				]));
 		}
 
-		$dbResponse = $this->DashboardManagerConfig_model->editConfig($this->input,$dataToken['data']->userId);
+		$dbResponse = $this->DashboardManagerConfig_model->editConfigMeeting($this->input,$dataToken['data']->userId);
+
+		return $this->output
+			->set_content_type('application/json')
+			->set_status_header($dbResponse['code'])
+			->set_output(json_encode($dbResponse));
+	}
+
+	/**
+	 * API - Edit Config Attendance
+	 * =====================
+	 */
+	public function editConfigAttendance()
+	{
+		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
+        $dataToken = checkToken($token, true);
+
+		$this->form_validation->set_rules(
+			'latitude_attendance','Latitude',
+			'max_length[11]',
+			array(
+				'max_length'=> '%s maxinal 11 char',
+			)
+		);
+		$this->form_validation->set_rules(
+			'longitude_attendance','Longitude',
+			'max_length[11]',
+			array(
+				'max_length'=> '%s maxinal 11 char',
+			)
+		);
+		$this->form_validation->set_rules(
+			'max_distance_attendance','Max distance',
+			'max_length[11]',
+			array(
+				'max_length'=> '%s maxinal 11 char',
+			)
+		);
+
+		/* Set validation get error */
+		if ($this->form_validation->run() == FALSE)
+		{
+			return $this->output
+				->set_content_type('application/json')
+				->set_status_header(400)
+				->set_output(json_encode($this->form_validation->error_array()));
+		}
+
+		$dbResponse = $this->DashboardManagerConfig_model->editConfigAttendance($this->input,$dataToken['data']->userId);
 
 		return $this->output
 			->set_content_type('application/json')
@@ -139,6 +187,23 @@ class DashboardManagerConfig extends CI_Controller {
         $dataToken = checkToken($token, true);
 
 		$dbResponse = $this->DashboardManagerConfig_model->getMeetLink($dataToken['data']->userId);
+
+		return $this->output
+			->set_content_type('application/json')
+			->set_status_header($dbResponse['code'])
+			->set_output(json_encode($dbResponse));
+	}
+
+	/**
+	 * API - Get Config Attendance Coordinate
+	 * ======================================
+	 */
+	public function getConfAttendanceCoordinate()
+	{
+		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
+        $dataToken = checkToken($token, true);
+
+		$dbResponse = $this->DashboardManagerConfig_model->getConfAttendanceCoordinate($dataToken['data']->userId);
 
 		return $this->output
 			->set_content_type('application/json')

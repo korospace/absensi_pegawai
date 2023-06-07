@@ -2,6 +2,8 @@
 	DROP table
 	================================================ 
 */
+DROP TABLE IF EXISTS db_ci3_absensi_pegawai.employee_attendances;
+
 DROP TABLE IF EXISTS db_ci3_absensi_pegawai.employee_task_documents;
 
 DROP TABLE IF EXISTS db_ci3_absensi_pegawai.employee_tasks;
@@ -83,6 +85,10 @@ CREATE TABLE manager_configs
     meet_time_show  VARCHAR(8)   DEFAULT NULL,
     meet_time_hide  VARCHAR(8)   DEFAULT NULL,
     meet_days_show  VARCHAR(60)  DEFAULT NULL,
+    latitude_attendance     VARCHAR(11)  DEFAULT NULL,
+    longitude_attendance    VARCHAR(11)  DEFAULT NULL,
+    max_distance_attendance INT(11)	     DEFAULT NULL,
+    days_attendance         VARCHAR(60)  DEFAULT NULL,
     created_at  TIMESTAMP    	 DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP    	 DEFAULT CURRENT_TIMESTAMP,
 
@@ -117,6 +123,20 @@ CREATE TABLE employee_task_documents
 
     PRIMARY KEY(docId),
 	CONSTRAINT  fk_document_task FOREIGN KEY (taskId) REFERENCES employee_tasks (taskId) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE employee_attendances
+(
+    attendanceId   INT(11)       AUTO_INCREMENT,
+    employeeId     INT(11)       NOT NULL,
+    day            VARCHAR(9)    NOT NULL,
+    time_arrives   VARCHAR(80)    DEFAULT NULL,
+    time_departure VARCHAR(80)    DEFAULT NULL,
+    created_at     TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY(attendanceId),
+	CONSTRAINT  fk_attandance_employees FOREIGN KEY (employeeId) REFERENCES employees (employeeId) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 /* 

@@ -38,6 +38,10 @@
 		#modalAddTask .modal-content, #modalEditTask .modal-content {
 			max-width: 100% !important;
 		}
+
+		.vertical-middle {
+			vertical-align: middle !important;
+		}
 	</style>
 
 </head>
@@ -170,10 +174,10 @@
 														<a class="nav-link text-secondary" id="all_task_tab" data-toggle="pill" href="#all_task" role="tab" aria-controls="all_task" aria-selected="false" onclick="showTabAllTask()">All Task</a>
 													</li>
 													<li class="nav-item">
-														<a class="nav-link text-secondary" id="today_attendance_tab" data-toggle="pill" href="#today_attendance" role="tab" aria-controls="today_attendance" aria-selected="true">Today attendance</a>
+														<a class="nav-link text-secondary" id="today_attendance_tab" data-toggle="pill" href="#today_attendance" role="tab" aria-controls="today_attendance" aria-selected="true" onclick="showTabTodayAttendance()">Today attendance</a>
 													</li>
 													<li class="nav-item">
-														<a class="nav-link text-secondary" id="all_attendance_tab" data-toggle="pill" href="#all_attendance" role="tab" aria-controls="all_attendance" aria-selected="true">All attendance</a>
+														<a class="nav-link text-secondary" id="all_attendance_tab" data-toggle="pill" href="#all_attendance" role="tab" aria-controls="all_attendance" aria-selected="true" onclick="showTabAllAttendance()">All attendance</a>
 													</li>
 												</ul>
 											</div>
@@ -189,7 +193,9 @@
 														</div>
 														<div class="row mt-4">
 															<div class="col-md-3">
-																<a href="compose.html" class="btn btn-info btn-block mb-3">Status</a>
+																<div class="card card-secondary card-outline text-secondary text-center p-2 mb-4">
+																	<b style="">Status</b>
+																</div>
 
 																<div class="card">
 																	<div class="card-body p-0">
@@ -274,7 +280,9 @@
 														</div>
 														<div class="row mt-4">
 															<div class="col-md-3">
-																<a href="compose.html" class="btn btn-info btn-block mb-3">Status</a>
+																<div class="card card-secondary card-outline text-secondary text-center p-2 mb-4">
+																	<b style="">Status</b>
+																</div>
 
 																<div class="card">
 																	<div class="card-body p-0">
@@ -345,10 +353,73 @@
 														</div>
 													</div>
 													<div class="tab-pane fade" id="today_attendance" role="tabpanel" aria-labelledby="today_attendance_tab">
-														today attendance
+														<div class="row justify-content-end">
+															<div class="col-md-4">
+																<div class="input-group">
+																	<div class="input-group-prepend">
+																		<span class="input-group-text">
+																			<i class="far fa-calendar-alt"></i>
+																		</span>
+																	</div>
+																	<input type="text" class="form-control float-right" id="date_today_attendance" disabled>
+																</div>
+															</div>
+														</div>
+
+														<div class="row mt-4">
+															<div class="col-12">
+																<div class="card card-secondary card-outline">
+																	<div class="card-body">
+																		<table class="table table-bordered table-hover" id="table_today_attendance">
+																			<thead>
+																				<tr>
+																					<th class="text-center">
+																						#
+																					</th>
+																					<th>
+																						Employee
+																					</th>
+																					<th class="text-center">
+																						Come
+																					</th>
+																					<th class="text-center">
+																						Go Home
+																					</th>
+																				</tr>
+																			</thead>
+																			<tbody>
+		
+																			</tbody>
+																		</table>
+																	</div>
+																</div>
+															</div>
+														</div>
 													</div>
 													<div class="tab-pane fade" id="all_attendance" role="tabpanel" aria-labelledby="all_attendance_tab">
-														All attendance
+														<div class="row justify-content-end">
+															<div class="col-md-4">
+																<div class="input-group">
+																	<div class="input-group-prepend">
+																		<span class="input-group-text">
+																			<i class="far fa-calendar-alt"></i>
+																		</span>
+																	</div>
+																	<input type="text" class="form-control float-right" id="date_range_all_attendances">
+																</div>
+															</div>
+														</div>
+
+														<div class="row mt-4">
+															<div class="col-12" id="wraper_table_all_attendance">
+																<!-- alert for no data -->
+																<!-- <div class="mt-5 pb-3 text-center">
+																	<h3 class="text-secondary">
+																		No data available
+																	</h3>
+																</div> -->
+															</div>
+														</div>
 													</div>
 												</div>
 											</div>
@@ -538,6 +609,40 @@
 	<!-- GLOBAL VARIABLE -->
 	<script>
 		const BASEURL = "<?= base_url() ?>"
+	</script>
+
+	<!-- Maps -->
+	<script>
+		(g => {
+			var h, a, k, p = "The Google Maps JavaScript API",
+				c = "google",
+				l = "importLibrary",
+				q = "__ib__",
+				m = document,
+				b = window;
+			b = b[c] || (b[c] = {});
+			var d = b.maps || (b.maps = {}),
+				r = new Set,
+				e = new URLSearchParams,
+				u = () => h || (h = new Promise(async (f, n) => {
+				await (a = m.createElement("script"));
+				e.set("libraries", [...r, "places"] + ""); // Menambahkan "places" ke dalam parameter "libraries"
+				for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]);
+				e.set("callback", c + ".maps." + q);
+				a.src = `https://maps.${c}apis.com/maps/api/js?` + e;
+				d[q] = f;
+				a.onerror = () => h = n(Error(p + " could not load."));
+				a.nonce = m.querySelector("script[nonce]")?.nonce || "";
+				m.head.append(a)
+			}));
+			d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n))
+		})({
+			key: "AIzaSyBqunDTdAmMA3wt5nSXJw7mHWCXSRu1W68",
+			v: "weekly",
+			libraries: ["places"] // Menambahkan "places" sebagai pustaka yang dimuat
+			// Use the 'v' parameter to indicate the version to use (weekly, beta, alpha, etc.).
+			// Add other bootstrap parameters as needed, using camel case.
+		});
 	</script>
 
 	<!-- jQuery -->
@@ -1248,7 +1353,7 @@
 		}
 
 		/**
-		 * Initial Date Range Picker
+		 * Initial Date Range Picker (All Task)
 		 */
 		$('#date_range_all_task').daterangepicker()
 
@@ -1256,7 +1361,7 @@
 			fn_get_all_task();
 		})
 
-		let setCurrentStartDate = () =>  {
+		let setCurrentStartDateAllTask = () =>  {
 			let currentUnixTime = new Date(new Date().getTime());
 
 			let currentDay   = currentUnixTime.toLocaleString("en-US",{day: "2-digit"});
@@ -1266,7 +1371,7 @@
 			$('#date_range_all_task').val(`${currentMonth}/01/${currentYear} - ${currentMonth}/${currentDay}/${currentYear}`)
 		}
 
-		setCurrentStartDate()
+		setCurrentStartDateAllTask()
 
 		/**
 		 * Initial Table Task (All today)
@@ -1381,6 +1486,253 @@
 							},
 						]
 					});
+				},
+				error:function(data) {
+					hideLoadingSpinner();
+					
+					showErrorServer(data);
+				}
+			});
+		}
+
+		/**
+		 * Set Current Date Today Attendance
+		 */
+		let setCurrentDateTodayAttendance = () =>  {
+			let currentUnixTime = new Date(new Date().getTime());
+
+			let currentDay   = currentUnixTime.toLocaleString("en-US",{day: "2-digit"});
+			let currentMonth = currentUnixTime.toLocaleString("en-US",{month: "long"});
+			let currentYear  = currentUnixTime.toLocaleString("en-US",{year: "numeric"});
+
+			$('#date_today_attendance').val(`${currentMonth} ${currentDay}, ${currentYear}`)
+		}
+
+		setCurrentDateTodayAttendance()
+
+		/**
+		 * Initial Table Today Attendance
+		 */
+		$("#table_today_attendance").DataTable({
+			"bDestroy"		: true,
+			"paging"    	: true,
+			"searching" 	: true,
+			"ordering"  	: true,
+			"retrieve"		: true,
+			"lengthChange"	: false,
+			"info"			: true,
+			"autoWidth"		: false,
+			"responsive"	: true,
+		});
+
+		/**
+		 * Get Today Attendance
+		 */
+		function showTabTodayAttendance() {
+			showLoadingSpinner();
+
+			setTimeout(() => {
+				fn_get_today_attendance(false);
+			}, 140);
+		}
+		
+		function fn_get_today_attendance(showLading=true) {
+			if (showLading) {
+				showLoadingSpinner()
+			}
+
+			$.ajax({
+				type: "GET",
+				url: "<?php echo base_url() . 'index.php/EmployeeAttendance/getAttendance'?>",
+				headers		: {
+					'token': $.cookie("_jwttoken"),
+				},
+				success:function(datas) {
+					hideLoadingSpinner();
+	
+					let attendances = datas.data;
+	
+					// /* remap data */
+					attendances.map(function (data,i) {
+						data.no = i+1;
+						
+						data.come = `<button class="btn btn-outline-success">
+							${data.time_arrives}
+						</button>`;
+	
+						data.go_home = "";
+
+						if (data.time_departure) {
+							data.go_home = `<button class="btn btn-outline-warning">
+								${data.time_departure}
+							</button>`;
+						}
+					})
+	
+					/* update data table */
+					$('#table_today_attendance').DataTable({
+						"bDestroy": true,
+						data   	  : attendances,
+						columns	  : [
+							{ data: 'no' },
+							{ data: 'name' },
+							{ data: 'come' },
+							{ data: 'go_home' },
+						], 
+						columnDefs: [
+							{
+								"targets": [0,2,3],
+								"className": "text-center vertical-middle",
+							},
+							{
+								"targets": [1],
+								"className": "vertical-middle",
+							},
+						]
+					});
+				},
+				error:function(data) {
+					hideLoadingSpinner();
+					
+					showErrorServer(data);
+				}
+			});
+		}
+
+		/**
+		 * Initial Date Range Picker (All Attendances)
+		 */
+		$('#date_range_all_attendances').daterangepicker()
+
+		$('#date_range_all_attendances').on("change", function () {
+			fn_get_all_attendances();
+		})
+
+		let setCurrentStartDateAllAttendances = () =>  {
+			let currentUnixTime = new Date(new Date().getTime());
+
+			let currentDay   = currentUnixTime.toLocaleString("en-US",{day: "2-digit"});
+			let currentMonth = currentUnixTime.toLocaleString("en-US",{month: "2-digit"});
+			let currentYear  = currentUnixTime.toLocaleString("en-US",{year: "numeric"});
+
+			$('#date_range_all_attendances').val(`${currentMonth}/01/${currentYear} - ${currentMonth}/${currentDay}/${currentYear}`)
+		}
+
+		setCurrentStartDateAllAttendances()
+
+		/**
+		 * Get All Attendance
+		 */
+		function showTabAllAttendance() {
+			showLoadingSpinner();
+
+			setTimeout(() => {
+				fn_get_all_attendances(false);
+			}, 140);
+		}
+
+		function fn_get_all_attendances(showLading=true) {
+			if (showLading) {
+				showLoadingSpinner()
+			}
+			
+			let dateStart = $('#date_range_all_attendances').val().split("-")[0].trim();
+			let dateEnd   = $('#date_range_all_attendances').val().split("-")[1].trim();
+
+			$.ajax({
+				type: "GET",
+				url: "<?php echo base_url() . 'index.php/EmployeeAttendance/getAttendance?startDate='?>"+dateStart+"&endDate="+dateEnd,
+				headers		: {
+					'token': $.cookie("_jwttoken"),
+				},
+				success:function(datas) {
+					hideLoadingSpinner();
+
+					// thead
+					let thThead = `<th>Name</th>`;
+
+					for (const week in datas.data.listday) {
+						thThead += `<td>${week}</td>`;
+
+						datas.data.listday[week].forEach(row => {
+							thThead += `<th>${row}</th>`;
+						});
+					}
+
+					// tbody
+					let allTrBody = ``;
+
+					for (const employeeName in datas.data.listWeekEachEmployee) {
+						let trBody = `<td>${employeeName}</td>`;
+
+						for (const week in datas.data.listWeekEachEmployee[employeeName]) {
+							trBody += `<td></td>`
+
+							datas.data.listday[week].forEach(day => {
+								let attendance = datas.data.listWeekEachEmployee[employeeName][week].filter(attendance => {
+									if (attendance) {
+										if (day == attendance.day) {
+											return attendance
+										}
+									}
+								})	
+
+								if (attendance[0]) {
+									trBody += `<td> 
+										<table style="width:100%;">
+											<tr>
+												<td>
+													<b class="text-success">come</b>
+												</td>
+												<td>${attendance[0].time_arrives}</td>
+											</tr>
+											<tr>
+												<td>
+													<b class="text-warning">go home</b>
+												</td>
+												<td>${attendance[0].time_departure}</td>
+											</tr>
+										</table>
+									</td>`
+								}
+								else {
+									trBody += `<td> 
+										<table style="width:100%;">
+											<tr>
+												<td style="width:20%;">
+													<b class="text-success">come</b>
+												</td>
+												<td></td>
+											</tr>
+											<tr>
+												<td>
+													<b class="text-warning">go home</b>
+												</td>
+												<td></td>
+											</tr>
+										</table>
+									</td>`
+								}
+							});
+						}
+
+						allTrBody += `<tr>${trBody}</tr>`;
+					}
+
+					let mainElement = `<div class="card card-secondary card-outline table-responsive">
+						<table class="table table-hover table-bordered text-nowrap">
+							<thead>
+								<tr>
+									${thThead}
+								</tr>
+							</thead>
+							<tbody>
+								${allTrBody}
+							</tbody>
+						</table>
+					</div>`;
+
+					$('#wraper_table_all_attendance').html(mainElement);
 				},
 				error:function(data) {
 					hideLoadingSpinner();

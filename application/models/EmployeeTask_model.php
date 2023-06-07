@@ -2,7 +2,31 @@
 
 class EmployeeTask_model extends CI_Model 
 {
-	
+	/**
+	 * NOTES: 
+	 * - make sure you have added the database library to the autoload.php
+	 */
+
+	## Get Manager ID
+    protected function getManagerId($userId)
+    {
+		$this->db->select('managerId');
+        $this->db->where('userId =', $userId);
+
+        $query = $this->db->get('managers');
+		return $query->first_row()->managerId;
+    }
+
+	## Get Employee ID
+    protected function getEmployeeID($userId)
+    {
+		$this->db->select('employeeId');
+        $this->db->where('userId =', $userId);
+
+        $query = $this->db->get('employees');
+		return $query->first_row()->employeeId;
+    }
+
 	/**
 	 * Get Task
 	 */
@@ -159,15 +183,15 @@ class EmployeeTask_model extends CI_Model
 			$description = $input->post('description');
 			$this->db->set('description', $description);
 			$this->db->set('status', "checking");
+			$this->db->where('employeeId', $this->getEmployeeID($dataToken->userId));
 			$this->db->where('taskId', $taskId);
-			// $this->db->where('employeeId', $this->getEmployeeID($dataToken->userId));
 		} 
 		elseif ($dataToken->privilege == 'manager') {
 			$instruction = $input->post('instruction');
 			$this->db->set('instruction', $instruction);
 			$this->db->set('status', $input->post('status'));
-			$this->db->where('taskId', $taskId);
 			$this->db->where('employeeId', $input->post('employeeId'));
+			$this->db->where('taskId', $taskId);
 		}
 
 		$this->db->update('employee_tasks');
@@ -250,24 +274,4 @@ class EmployeeTask_model extends CI_Model
 			'message' => "document successfully deleted",
 		];
 	}
-
-	## Get Manager ID
-    protected function getManagerId($userId)
-    {
-		$this->db->select('managerId');
-        $this->db->where('userId =', $userId);
-
-        $query = $this->db->get('managers');
-		return $query->first_row()->managerId;
-    }
-
-	## Get Employee ID
-    protected function getEmployeeID($userId)
-    {
-		$this->db->select('employeeId');
-        $this->db->where('userId =', $userId);
-
-        $query = $this->db->get('employees');
-		return $query->first_row()->employeeId;
-    }
 }

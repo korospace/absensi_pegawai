@@ -93,6 +93,8 @@
 
 	<!-- jQuery -->
 	<script src="<?= base_url('assets/js/plugins/jquery.min.js') ?>"></script>
+	<!-- jQuery Cookie -->
+	<script src="<?= base_url('assets/js/plugins/jquery.cookie.min.js') ?>"></script>
 	<!-- Bootstrap 4 -->
 	<script src="<?= base_url('assets/js/plugins/bootstrap.bundle.min.js') ?>"></script>
 	<!-- jquery-validation -->

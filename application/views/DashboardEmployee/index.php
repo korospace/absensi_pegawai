@@ -29,11 +29,11 @@
 	<link rel="stylesheet" href="<?= base_url('assets/css/imgViewer.css'); ?>">
 
 	<style>
-		#modalAddTask .modal-dialog, #modalEditTask .modal-dialog {
+		#modalAddTask .modal-dialog, #modalEditTask .modal-dialog, #modalMapAttendance .modal-dialog {
 			max-width: 100% !important;
 		}
 
-		#modalAddTask .modal-content, #modalEditTask .modal-content {
+		#modalAddTask .modal-content, #modalEditTask .modal-content, #modalMapAttendance .modal-content {
 			max-width: 100% !important;
 		}
 	</style>
@@ -137,14 +137,22 @@
 			<div class="container-fluid">
 				<div class="row">
 					<div class="col-12">
-						<div class="alert alert-secondary">
-							<h5 class="d-flex align-items-center mb-4">
-								<span>Online Meeting</span>
-							</h5>
-							<span>
-								<i class="fa fa-arrow-right mr-2" aria-hidden="true" style="font-size: 14px;"></i>
-							</span> 
-							<b id="link-wraper" style="font-size: 18px;">_ _ _ _</b>
+						<div class="alert alert-secondary row p-3">
+							<div class="col-md-8 col-lg-10 p-0">
+								<h5 class="d-flex align-items-center mb-4">
+									<span>Online Meeting</span>
+								</h5>
+								<span>
+									<i class="fa fa-arrow-right mr-2" aria-hidden="true" style="font-size: 14px;"></i>
+								</span> 
+								<b id="link-wraper" style="font-size: 18px;">_ _ _ _</b>
+							</div>
+
+							<div class="col-md-4 col-lg-2 mt-4 mt-md-0 p-0">
+								<button type="submit" class="btn btn-info w-100 h-100" onclick="showMapAttendance()">
+									<b>ATTENDANCE</b>
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -158,7 +166,7 @@
 							<div class="card-header">
 								<h3 class="card-title">
 								<i class="fas fa-edit"></i>
-									Task
+									Activity
 								</h3>
 							</div>
 
@@ -169,11 +177,16 @@
 											<div class="card-header p-0 border-bottom-0">
 												<ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
 													<li class="nav-item">
-														<a class="nav-link text-secondary active" id="today_task_tab" data-toggle="pill" href="#today_task" role="tab" aria-controls="today_task" aria-selected="true">Today</a>
+														<a class="nav-link text-secondary active" id="today_task_tab" data-toggle="pill" href="#today_task" role="tab" aria-controls="today_task" aria-selected="true" onclick="showTabTodayTask()">Today Task</a>
 													</li>
 													<li class="nav-item">
 														<a class="nav-link text-secondary" id="all_task_tab" data-toggle="pill" href="#all_task" role="tab" aria-controls="all_task" aria-selected="false" onclick="showTabAllTask()">
-															All
+															All Task
+														</a>
+													</li>
+													<li class="nav-item">
+														<a class="nav-link text-secondary" id="all_attendances_tab" data-toggle="pill" href="#all_attendances" role="tab" aria-controls="all_attendances" aria-selected="false" onclick="showTabAllAttendances()">
+															Attendances
 														</a>
 													</li>
 												</ul>
@@ -251,6 +264,51 @@
 																			</th>
 																			<th class="text-center">
 																				Action
+																			</th>
+																		</tr>
+																	</thead>
+																	<tbody>
+
+																	</tbody>
+																</table>
+															</div>
+														</div>
+													</div>
+													<div class="tab-pane fade" id="all_attendances" role="tabpanel" aria-labelledby="all_attendances_tab">
+														<div class="row justify-content-end">
+															<div class="col-md-4">
+																<div class="input-group">
+																	<div class="input-group-prepend">
+																		<span class="input-group-text">
+																			<i class="far fa-calendar-alt"></i>
+																		</span>
+																	</div>
+																	<input type="text" class="form-control float-right" id="date_range_all_attendances">
+																</div>
+															</div>
+														</div>
+														<div class="row mt-4">
+															<div class="col-md-12">
+																<table class="table table-bordered table-hover" id="table_all_attendances">
+																	<thead>
+																		<tr>
+																			<th class="text-center">
+																				No
+																			</th>
+																			<th class="text-center">
+																				Week
+																			</th>
+																			<th class="text-center">
+																				Day
+																			</th>
+																			<th class="text-center">
+																				Come
+																			</th>
+																			<th class="text-center">
+																				Go Home
+																			</th>
+																			<th class="text-center">
+																				Date
 																			</th>
 																		</tr>
 																	</thead>
@@ -417,11 +475,70 @@
 			</form>
 		</div>
 	</div>
+	<div class="modal fade" id="modalMapAttendance">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Map</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body pt-4 pb-3">
+					<div id="mapAttendance" style="height: 400px;"></div>
+
+					<form action="" id="formAttendance">
+						<input type="hidden" id="latitude" class="form-control" name="latitude" />
+						<input type="hidden" id="longitude" class="form-control" name="longitude" />
+						<div class="form-group row mt-4">
+							<button type="submit" class="btn btn-info w-100">
+								<b>ATTENDANCE</b>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<!-- ====================== JS ====================== -->
 	<!-- GLOBAL VARIABLE -->
 	<script>
 		const BASEURL = "<?= base_url() ?>"
+	</script>
+
+	<!-- Maps -->
+	<script>
+		(g => {
+			var h, a, k, p = "The Google Maps JavaScript API",
+				c = "google",
+				l = "importLibrary",
+				q = "__ib__",
+				m = document,
+				b = window;
+			b = b[c] || (b[c] = {});
+			var d = b.maps || (b.maps = {}),
+				r = new Set,
+				e = new URLSearchParams,
+				u = () => h || (h = new Promise(async (f, n) => {
+				await (a = m.createElement("script"));
+				e.set("libraries", [...r, "places"] + ""); // Menambahkan "places" ke dalam parameter "libraries"
+				for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]);
+				e.set("callback", c + ".maps." + q);
+				a.src = `https://maps.${c}apis.com/maps/api/js?` + e;
+				d[q] = f;
+				a.onerror = () => h = n(Error(p + " could not load."));
+				a.nonce = m.querySelector("script[nonce]")?.nonce || "";
+				m.head.append(a)
+			}));
+			d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n))
+		})({
+			key: "AIzaSyBqunDTdAmMA3wt5nSXJw7mHWCXSRu1W68",
+			v: "weekly",
+			libraries: ["places"] // Menambahkan "places" sebagai pustaka yang dimuat
+			// Use the 'v' parameter to indicate the version to use (weekly, beta, alpha, etc.).
+			// Add other bootstrap parameters as needed, using camel case.
+		});
 	</script>
 
 	<!-- jQuery -->
@@ -533,7 +650,8 @@
 					$('#link-wraper').html(res.data ? `<a href="${res.data}" target="_blank">${res.data}</a>` : "_ _ _ _" );
 				},
 				error:function(res) {
-					// nothing
+					clearInterval(intervalGetMeetLink);
+					showErrorServer(res);
 				}
 			});
 		}
@@ -555,10 +673,20 @@
 		}).buttons().container().appendTo('#table_today_task_wrapper .col-md-6:eq(0)');
 
 		/**
-		 * Get List Of Task
+		 * Get Today Task
 		 */
-		function fn_get_task() {
+		function showTabTodayTask() {
 			showLoadingSpinner();
+
+			setTimeout(() => {
+				fn_get_task(false);
+			}, 140);
+		}
+
+		function fn_get_task(showLoading=true) {
+			if (showLoading) {
+				showLoadingSpinner();
+			}
 
 			$.ajax({
 				type: "GET",
@@ -1074,6 +1202,7 @@
 							hideLoadingSpinner();
 							showToast('task successfully <b>deleted..!</b>','success');
 							fn_get_task();
+							fn_get_all_task();
 						},
 						error: function (data) {
 							hideLoadingSpinner();
@@ -1085,7 +1214,7 @@
 		}
 
 		/**
-		 * Initial Date Range Picker
+		 * Initial Date Range Picker - All Task
 		 */
 		$('#date_range_all_task').daterangepicker()
 
@@ -1093,7 +1222,7 @@
 			fn_get_all_task();
 		})
 
-		let setCurrentStartDate = () =>  {
+		let setCurrentStartDateAllTask = () =>  {
 			let currentUnixTime = new Date(new Date().getTime());
 
 			let currentDay   = currentUnixTime.toLocaleString("en-US",{day: "2-digit"});
@@ -1103,7 +1232,7 @@
 			$('#date_range_all_task').val(`${currentMonth}/01/${currentYear} - ${currentMonth}/${currentDay}/${currentYear}`)
 		}
 
-		setCurrentStartDate()
+		setCurrentStartDateAllTask()
 
 		/**
 		 * Initial Table Task (All today)
@@ -1179,7 +1308,7 @@
 
 						data.action = "";
 
-						if (data.managerId) {
+						if (data.managerId == null) {
 							data.action += `<span class="btn_delete btn btn-sm bg-secondary mr-2" onclick="removeTask('${data.taskId}')">
 								<i class="fas fa-trash"></i>
 							</span>`;
@@ -1226,6 +1355,351 @@
 				}
 			});
 		}
+
+		/**
+		 * Initial Map
+		 */
+		function showMapAttendance() {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(
+					function (dataYourLoc) {
+
+						showLoadingSpinner();
+
+						$.ajax({
+							type: "GET",
+							url: "<?php echo base_url() . 'index.php/DashboardManagerConfig/getConfAttendanceCoordinate'?>",
+							headers: {
+								'token': $.cookie("_jwttoken"),
+							},
+							success: async function(res) {
+								hideLoadingSpinner();
+								$('#modalMapAttendance').modal('show');
+
+								$('#formAttendance #latitude').val(dataYourLoc.coords.latitude);
+								$('#formAttendance #longitude').val(dataYourLoc.coords.longitude);
+
+								let map;
+
+								const { Map } = await google.maps.importLibrary("maps");
+
+								map = new Map(document.getElementById("mapAttendance"), {
+									center: { lat: parseFloat(res.data.latitude_attendance), lng: parseFloat(res.data.longitude_attendance) },
+									zoom: 18,
+									streetViewControl: false,
+								});
+
+								// marker
+								new google.maps.Marker({
+									position: { lat: parseFloat(res.data.latitude_attendance), lng: parseFloat(res.data.longitude_attendance) },
+									map: map,
+								});
+
+								// circle
+								new google.maps.Circle({
+									strokeColor: "#FF0000",
+									strokeOpacity: 0.8,
+									strokeWeight: 2,
+									fillColor: "#FF0000",
+									fillOpacity: 0.35,
+									map,
+									center: { lat: parseFloat(res.data.latitude_attendance), lng: parseFloat(res.data.longitude_attendance) },
+									radius: parseFloat(res.data.max_distance_attendance),
+								});
+
+								// person marker icon
+								const iconPerson = {
+									url: BASEURL + "/assets/img/person_marker.png", // url
+									scaledSize: new google.maps.Size(50, 50), // scaled size
+									// origin: new google.maps.Point(0.5,0.5), // origin
+									// anchor: new google.maps.Point(0.5,0.5) // anchor
+								};
+
+								// person marker
+								let personMarker = new google.maps.Marker({
+									position: { lat: dataYourLoc.coords.latitude, lng: dataYourLoc.coords.longitude },
+									map: map,
+									icon: iconPerson
+								});
+
+								// draw direction
+								let betweenMeter = getDistanceBetween({ lat: dataYourLoc.coords.latitude, lng: dataYourLoc.coords.longitude }, { lat: parseFloat(res.data.latitude_attendance), lng: parseFloat(res.data.longitude_attendance) });
+								let range        = betweenMeter - parseFloat(res.data.max_distance_attendance); 
+
+								if (range > 8) {
+									var display  = new google.maps.DirectionsRenderer();
+									var services = new google.maps.DirectionsService();
+									display.setMap(map);
+
+									var request ={
+										origin : { lat: dataYourLoc.coords.latitude, lng: dataYourLoc.coords.longitude },
+										destination: { lat: parseFloat(res.data.latitude_attendance), lng: parseFloat(res.data.longitude_attendance) },
+										travelMode: 'WALKING'
+									};
+									services.route(request,function(result,status){
+										if(status =='OK'){
+											display.setDirections(result);
+										}
+									});
+								}
+
+								// show button your location
+								addYourLocationButton(map,personMarker);
+							},
+							error:function(res) {
+								hideLoadingSpinner();
+								clearInterval(intervalGetMeetLink);
+								showErrorServer(res);
+							}
+						});
+					},
+					function (err) {
+						if (err.code == 2) {
+							showToast("Internet <b>not connected</b>", "warning");
+						} else {
+							showToast("Please <b>turn on</b> your location", "warning");
+						}
+
+						console.log(err);
+					}
+				);
+			} 
+			else {
+				showToast("Browser not suport location", "warning");
+			}
+
+		}
+
+		var rad = function(x) {
+			return x * Math.PI / 180;
+		};
+
+		var getDistanceBetween = function(p1, p2) {
+			var R     = 6371000; // Earth’s mean radius in meter
+			var dLat  = rad(p2.lat - p1.lat);
+			var dLong = rad(p2.lng - p1.lng);
+
+			var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(rad(p1.lat)) * Math.cos(rad(p2.lat)) *Math.sin(dLong / 2) * Math.sin(dLong / 2);
+			var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+			var d = R * c;
+			
+			return d; // returns the distance in meter
+		};
+
+		function addYourLocationButton(map, marker) 
+		{
+			var controlDiv = document.createElement('div');
+			
+			var firstChild = document.createElement('button');
+			firstChild.style.backgroundColor = '#fff';
+			firstChild.style.border = 'none';
+			firstChild.style.outline = 'none';
+			firstChild.style.width = '28px';
+			firstChild.style.height = '28px';
+			firstChild.style.borderRadius = '2px';
+			firstChild.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
+			firstChild.style.cursor = 'pointer';
+			firstChild.style.marginRight = '10px';
+			firstChild.style.padding = '0px';
+			firstChild.title = 'Your Location';
+			controlDiv.appendChild(firstChild);
+			
+			var secondChild = document.createElement('div');
+			secondChild.style.margin = '5px';
+			secondChild.style.width = '18px';
+			secondChild.style.height = '18px';
+			secondChild.style.backgroundImage = 'url(https://maps.gstatic.com/tactile/mylocation/mylocation-sprite-1x.png)';
+			secondChild.style.backgroundSize = '180px 18px';
+			secondChild.style.backgroundPosition = '0px 0px';
+			secondChild.style.backgroundRepeat = 'no-repeat';
+			secondChild.id = 'you_location_img';
+			firstChild.appendChild(secondChild);
+			
+			google.maps.event.addListener(map, 'dragend', function() {
+				$('#you_location_img').css('background-position', '0px 0px');
+			});
+
+			firstChild.addEventListener('click', function() {
+				var imgX = '0';
+				var animationInterval = setInterval(function(){
+					if(imgX == '-18') imgX = '0';
+					else imgX = '-18';
+					$('#you_location_img').css('background-position', imgX+'px 0px');
+				}, 500);
+				if(navigator.geolocation) {
+					navigator.geolocation.getCurrentPosition(function(position) {
+						var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+						marker.setPosition(latlng);
+						map.setCenter(latlng);
+						clearInterval(animationInterval);
+						$('#you_location_img').css('background-position', '-144px 0px');
+					});
+				}
+				else{
+					clearInterval(animationInterval);
+					$('#you_location_img').css('background-position', '0px 0px');
+				}
+			});
+			
+			controlDiv.index = 1;
+			map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(controlDiv);
+		}
+
+		/**
+		 * Insert Attendance
+		 */
+		$('#formAttendance')
+			.submit(function(e) {
+				e.preventDefault();
+			})
+			.validate({
+				submitHandler: function () {
+					showLoadingSpinner();
+					
+					let form = new FormData(document.querySelector('#formAttendance'));
+					form.set("csrf_attend", "a3b1878d6218db944f23b6c7ff94e4dc");
+		
+					$.ajax({
+						type: "POST",
+						url: "<?php echo base_url() . 'index.php/EmployeeAttendance/insertAttendace'?>",
+						data: form,
+						cache: false,
+						processData:false,
+						contentType: false,
+						headers		: {
+							'token': $.cookie("_jwttoken"),
+						},
+						success:function(res) {
+							hideLoadingSpinner();
+							fn_get_all_attendaces();
+							showToast(res.message,'success');
+						},
+						error:function(res) {
+							hideLoadingSpinner();
+							showErrorServer(res);
+						}
+					});
+				}
+			})
+
+		/**
+		 * Initial Table All Attendances
+		 */
+		$("#table_all_attendances").DataTable({
+			"bDestroy"		: true,
+			"paging"    	: true,
+			"searching" 	: true,
+			"ordering"  	: true,
+			"retrieve"		: true,
+			"lengthChange"	: false,
+			"info"			: true,
+			"autoWidth"		: false,
+			"responsive"	: true,
+		});
+
+		/**
+		 * Initial Date Range Picker - All Attendances
+		 */
+		$('#date_range_all_attendances').daterangepicker()
+
+		$('#date_range_all_attendances').on("change", function () {
+			fn_get_all_attendaces();
+		})
+
+		let setCurrentStartDateAllAttendances = () =>  {
+			let currentUnixTime = new Date(new Date().getTime());
+
+			let currentDay   = currentUnixTime.toLocaleString("en-US",{day: "2-digit"});
+			let currentMonth = currentUnixTime.toLocaleString("en-US",{month: "2-digit"});
+			let currentYear  = currentUnixTime.toLocaleString("en-US",{year: "numeric"});
+
+			$('#date_range_all_attendances').val(`${currentMonth}/01/${currentYear} - ${currentMonth}/${currentDay}/${currentYear}`)
+		}
+
+		setCurrentStartDateAllAttendances()
+
+		/**
+		 * Get All Attendaces
+		 */
+		function showTabAllAttendances() {
+			showLoadingSpinner();
+
+			setTimeout(() => {
+				fn_get_all_attendaces(false);
+			}, 140);
+		}
+
+		function fn_get_all_attendaces(showLoading=true) {
+			if (showLoading) {
+				showLoadingSpinner();
+			}
+			
+			let dateStart = $('#date_range_all_attendances').val().split("-")[0].trim();
+			let dateEnd   = $('#date_range_all_attendances').val().split("-")[1].trim();
+
+			$.ajax({
+				type: "GET",
+				url: "<?php echo base_url() . 'index.php/EmployeeAttendance/getAttendance?startDate='?>"+dateStart+"&endDate="+dateEnd,
+				headers		: {
+					'token': $.cookie("_jwttoken"),
+				},
+				success:function(datas) {
+					hideLoadingSpinner();
+					let no = 1;
+					let newData = [];
+					let tmpNewData1 = {};
+
+					for (const key in datas.data) {
+						newData.push({
+							no      : no++,
+							week    : key,
+							day     : "-",
+							come    : "-",
+							go_home : "-",
+							created_at : "-",
+						});
+
+						datas.data[key].forEach(row => {
+							newData.push({
+								no      : no++,
+								week    : "-",
+								day     : row.day,
+								come    : `<b class="btn btn-outline-success">${row.time_arrives}</b>`,
+								go_home : `<b class="btn btn-outline-warning">${row.time_departure}</b>`,
+								created_at : row.created_at ? moment(row.created_at, "YYYY-MM-DD HH:mm:ss").format("MMMM DD, YYYY") : '-',
+							});
+						});
+					}
+
+					/* update data table */
+					$('#table_all_attendances').DataTable({
+						"bDestroy": true,
+						"iDisplayLength": 50,
+						data   	  : newData,
+						columns	  : [
+							{ data: 'no' },
+							{ data: 'week' },
+							{ data: 'day' },
+							{ data: 'come' },
+							{ data: 'go_home' },
+							{ data: 'created_at' },
+						], 
+						columnDefs: [
+							{
+								"targets": [0,1,2,3,4,5],
+								"className": "text-center",
+							},
+						]
+					});
+				},
+				error:function(data) {
+					hideLoadingSpinner();
+					
+					showErrorServer(data);
+				}
+			});
+		}
+
 	</script>
 </body>
 </html>

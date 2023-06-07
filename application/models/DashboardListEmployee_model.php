@@ -10,11 +10,13 @@ class DashboardListEmployee_model extends CI_Model
 	/* Get List Of Employee */
     public function getListEmployee($userId)
     {
+		$managerId = $this->getManagerId($userId);
+		
 		$this->db->select('u.userId,u.username,u.status,e.employeeId,e.name,e.phone,e.img_profile');
 		$this->db->from('users u');
 		$this->db->join('employees e', 'u.userId = e.userId');
         $this->db->where('e.NA =', "N");
-        $this->db->where('e.managerId =', $userId);
+        $this->db->where('e.managerId =', $managerId);
 		$this->db->order_by("employeeId", "DESC");
         $query = $this->db->get();
         $query = $query->result();
@@ -135,6 +137,16 @@ class DashboardListEmployee_model extends CI_Model
 			'status'  => $this->db->affected_rows() > 0 ? true : false,
 			'message' => $this->db->affected_rows() > 0 ? "employee successfully deleted" : "employee not deleted",
 		];
+	}
+
+	## Get Manager ID
+	protected function getManagerId($userId)
+	{
+		$this->db->select('managerId');
+		$this->db->where('userId =', $userId);
+
+		$query = $this->db->get('managers');
+		return $query->first_row()->managerId;
 	}
 
 }

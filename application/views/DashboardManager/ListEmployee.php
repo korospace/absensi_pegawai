@@ -28,15 +28,17 @@
 	<!-- Page Body -->
 	<div class="content mt-2">
 		<div class="container-fluid">
+			<div class="row mb-4">
+				<div class="col-12 d-flex justify-content-end">
+					<button type="button" class="btn btn-block btn-secondary btn-md" style="width: max-content;" data-toggle="modal" data-target="#modalAddEmployee" onclick="clearForm('#formAddEmployee')">
+						<i class="fa fa-plus"></i> &nbsp; ADD
+					</button>
+				</div>
+			</div>
+
 			<div class="row">
 				<div class="col-12">
-					<div class="card">
-						<div class="card-header d-flex justify-content-end">
-							<button type="button" class="btn btn-block btn-outline-success btn-md" style="width: max-content;" data-toggle="modal" data-target="#modalAddEmployee" onclick="clearForm('#formAddEmployee')">
-								<i class="fa fa-plus"></i> &nbsp; ADD
-							</button>
-						</div>
-
+					<div class="card card-secondary card-outline">
 						<div class="card-header">
 							<table id="tableEmployees" class="table table-bordered table-hover">
 								<thead>

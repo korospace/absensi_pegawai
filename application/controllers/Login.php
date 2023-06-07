@@ -14,8 +14,8 @@ class Login extends CI_Controller {
         parent::__construct();
 
         $this->load->helper('url');
-        $this->load->helper('my_helper');
-		$this->load->library('encryption');
+        $this->load->helper(['my_helper']);
+		$this->load->library(['encryption']);
         $this->load->model('Login_model');
 	}
 
@@ -47,7 +47,7 @@ class Login extends CI_Controller {
 	 * ====================
 	 */
 	public function LoginCek()
-	{
+	{		
 		$username = $this->input->post('username');
 		$password = $this->input->post('password');
 
