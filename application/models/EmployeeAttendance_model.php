@@ -367,7 +367,7 @@ class EmployeeAttendance_model extends CI_Model
 		while ($startDate < $endDate) {
 			$data['week-' . $weekCounter][] = [
 				'day'     => strtolower(date("l", $startDate)),
-				'dayUnix' => strtotime(date("l", $startDate) . "00:00:00"),
+				'dayUnix' => strtotime(date("d-m-Y", $startDate) . "00:00:00"),
 			];
 
 			if (strtolower(date("l", $startDate)) == "sunday") {

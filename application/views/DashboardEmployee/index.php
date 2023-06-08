@@ -21,6 +21,8 @@
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/adminlte.min.css'); ?>">
 	<!-- summernote -->
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/summernote/summernote-bs4.min.css'); ?>">
+	<!-- webCamLib -->
+	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/webCamLib.css'); ?>">
 	<!-- Toastify style -->
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/toastify.min.css'); ?>">
 	<!-- Loading Spinner style -->
@@ -565,6 +567,8 @@
     <script src="<?= base_url('assets/js/plugins/sweetalert2.min.js');?>"></script>
 	<!-- Toastify -->
 	<script src="<?= base_url('assets/js/showToastify.js') ?>"></script>
+	<!-- Web Cam Lib -->
+	<script src="<?= base_url('assets/js/plugins/webCamLib.min.js') ?>"></script>
 	<!-- Loading Spinner -->
 	<script src="<?= base_url('assets/js/showLoadingSpinner.js') ?>"></script>
 	<!-- Img Viewer -->
@@ -619,7 +623,7 @@
 			event.preventDefault();
 
             Swal.fire({
-                title: `Apakah anda yakin keluar?`,
+                title: `Are you sure you to logout?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -1267,6 +1271,8 @@
 			
 			let dateStart = $('#date_range_all_task').val().split("-")[0].trim();
 			let dateEnd   = $('#date_range_all_task').val().split("-")[1].trim();
+			dateStart = moment(dateStart, "MM/DD/YYYY").format("MMMM DD, YYYY");
+			dateEnd   = moment(dateEnd, "MM/DD/YYYY").format("MMMM DD, YYYY");
 
 			$.ajax({
 				type: "GET",
@@ -1636,6 +1642,8 @@
 			
 			let dateStart = $('#date_range_all_attendances').val().split("-")[0].trim();
 			let dateEnd   = $('#date_range_all_attendances').val().split("-")[1].trim();
+			dateStart = moment(dateStart, "MM/DD/YYYY").format("MMMM DD, YYYY");
+			dateEnd   = moment(dateEnd, "MM/DD/YYYY").format("MMMM DD, YYYY");
 
 			$.ajax({
 				type: "GET",
@@ -1699,6 +1707,37 @@
 				}
 			});
 		}
+
+		/**
+		 * Get Attendaces Photo
+		 */
+		$.ajax({
+			type: "GET",
+			url: "<?php echo base_url() . 'index.php/DashboardProfile/getEmployeeAttendancePhotos'?>",
+			headers		: {
+				'token': $.cookie("_jwttoken"),
+			},
+			success:function(data) {
+				if (data.data == null) {
+					// Swal.fire({
+					// 	title: `You have not completed the attendance photo`,
+					// 	icon: 'warning',
+					// 	showCancelButton: true,
+					// 	confirmButtonColor: '#3085d6',
+					// 	cancelButtonColor: '#6E7881',
+					// 	confirmButtonText: 'Oke',
+					// 	cancelButtonText: 'close',
+					// }).then(() => {
+					// 	$('.content-wrapper').load('DashboardProfile');
+					// })
+				}
+			},
+			error:function(data) {
+				hideLoadingSpinner();
+				
+				showErrorServer(data);
+			}
+		})
 
 	</script>
 </body>

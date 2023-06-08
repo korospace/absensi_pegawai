@@ -5,6 +5,16 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title></title>
+
+	<style>
+		/* #modalTakeAttendancePhoto .modal-dialog {
+			max-width: 100% !important;
+		}
+
+		#modalTakeAttendancePhoto .modal-content {
+			max-width: 100% !important;
+		} */
+	</style>
 </head>
 <body>
 
@@ -30,9 +40,15 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-12">
-					<div class="card card-secondary p-4">
+					<div class="card card-secondary card-outline">
 						<form class="form-horizontal" id="formEditProfile" autocomplete="off">
-							<div class="card-body">
+							<div class="card-header">
+								<h3 class="card-title">
+									<i class="fas fa-edit"></i>
+									Biodata
+								</h3>
+							</div>
+							<div class="card-body p-sm-5">
 								<div class="form-group row">
 									<div id="thumb-wraper" class="col-sm-4 col-md-2">
 										<img class="img-thumbnail" width="100%" max-height="300px" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOn8NttvA6tqm6qneoTylDrit08oB005q18Q&usqp=CAU"/>
@@ -75,13 +91,61 @@
 									</div>
 								</div>
 							</div>
-							<div class="card-footer">
+							<div class="card-footer bg-white pl-sm-5 pb-sm-5">
 								<button type="submit" class="btn btn-success">Submit</button>
 							</div>
 						</form>
 					</div>
 				</div>
 			</div>
+		</div>
+	</div>
+
+	<!-- ==================
+			Modals
+	=================== -->
+	<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modalTakeAttendancePhoto">
+		<div class="modal-dialog modal-xl">
+			<form class="modal-content" id="formTakeAttendancePhoto">
+				<div class="modal-header">
+					<h4 class="modal-title">Take Your Photo</h4>
+				</div>
+				<div class="modal-body pt-4 pb-3">
+					<div class="row">
+						<div class="col-12 d-flex justify-content-center">
+							<div class="image-capture"></div>
+						</div>
+						<div class="col-12 mt-3 mb-3 px-3">
+							<div class="dropdown-divider"></div>
+						</div>
+						<div class="col-12">
+							<!-- <h4 class="text-secondary pl-1">Example: </h4> -->
+						</div>
+						<div class="col-12 d-flex">
+							<?php for ($i=1; $i < 6; $i++) { ?>
+								<div id="wraper_file_name<?= $i ?>" style="flex: 1;position: relative;">
+									<input type="file" name="file_name[<?= $i ?>]" id="file_name[<?= $i ?>]" style="position: absolute;z-index: -100;opacity: 0;">
+									<div class="p-2 d-flex justify-content-center align-items-center" style="position: relative;width: 100%;height: 100%;">
+										<h5 class="text-secondary" style="position: absolute;opacity: 0.6;">
+											<b><?= $i ?></b>
+										</h5>
+										<div class="bg-secondary" style="width: 100%;height: 100%;overflow: hidden;border-radius: 4px;opacity: 0.5;">
+											<img class="img-thumbnail" src="<?= base_url("assets/img/attendance_photo/example/example$i.jpeg") ?>" style="max-width: 100%;height: 100%;opacity: 0.5;">
+										</div> 
+									</div>
+								</div>
+							<?php } ?>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer justify-content-between">
+					<button type="button" class="btn btn-default" >
+						<i class="fas fa-edit"></i>
+						Retake
+					</button>
+					<button type="submit" class="btn btn-success">Save</button>
+				</div>
+			</form>
 		</div>
 	</div>
 
@@ -243,6 +307,42 @@
 					});
 				}
 			});
+
+		/**
+		 * Web Cam Initialization
+		 */
+		$('#modalTakeAttendancePhoto .image-capture').customWebCam({
+			videoClass: ['face-capture-video'],
+			canvasClass: ['face-capture-canvas'],
+			facingMode: "user",
+			captureTimeoutInSeconds: 0,
+			callbackFunction: 'setCapturedImage',
+		});
+
+		function setCapturedImage(imageBase64) {
+			$('body').append($('<img>', {src: imageBase64}));
+		}
+
+		/**
+		 * Get Attendaces Photo
+		 */
+		$.ajax({
+			type: "GET",
+			url: "<?php echo base_url() . 'index.php/DashboardProfile/getEmployeeAttendancePhotos'?>",
+			headers		: {
+				'token': $.cookie("_jwttoken"),
+			},
+			success:function(data) {
+				if (data.data == null) {
+					// $('#modalTakeAttendancePhoto').modal('show');
+				}
+			},
+			error:function(data) {
+				hideLoadingSpinner();
+				
+				showErrorServer(data);
+			}
+		})
 	</script>
 </body>
 </html>

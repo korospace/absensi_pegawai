@@ -50,6 +50,30 @@ class DashboardProfile_model extends CI_Model
     }
 
 	/**
+	 * Get Attendance Photo
+	 */
+    public function getEmployeeAttendancePhotos($userId)
+    {
+		$this->db->select('*');
+		$this->db->from('employee_attendance_photos etp');
+		$this->db->join('employees e', 'etp.employeeId = e.employeeId');
+        $this->db->where('e.userId =', $userId);
+
+        $query = $this->db->get();
+		$query = $query->first_row();
+		
+		if ($query) {
+			$query->asset_path = getAttendancePhotoPath()['original'];
+		}
+
+		return [
+			'code'    => 200,
+			'status'  => true,
+			'data'    => $query
+		];
+    }
+
+	/**
 	 * Edit Profile - Manager
 	 */
 	public function editProfileManager($input,$userId,$controller)

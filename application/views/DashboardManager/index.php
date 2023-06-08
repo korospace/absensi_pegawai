@@ -1406,6 +1406,8 @@
 			
 			let dateStart = $('#date_range_all_task').val().split("-")[0].trim();
 			let dateEnd   = $('#date_range_all_task').val().split("-")[1].trim();
+			dateStart = moment(dateStart, "MM/DD/YYYY").format("MMMM DD, YYYY");
+			dateEnd   = moment(dateEnd, "MM/DD/YYYY").format("MMMM DD, YYYY");
 
 			$.ajax({
 				type: "GET",
@@ -1638,6 +1640,8 @@
 			
 			let dateStart = $('#date_range_all_attendances').val().split("-")[0].trim();
 			let dateEnd   = $('#date_range_all_attendances').val().split("-")[1].trim();
+			dateStart = moment(dateStart, "MM/DD/YYYY").format("MMMM DD, YYYY");
+			dateEnd   = moment(dateEnd, "MM/DD/YYYY").format("MMMM DD, YYYY");
 
 			$.ajax({
 				type: "GET",
@@ -1681,13 +1685,13 @@
 									trBody += `<td> 
 										<table style="width:100%;">
 											<tr>
-												<td>
+												<td style="width:20%;">
 													<b class="text-success">come</b>
 												</td>
 												<td>${attendance[0].time_arrives}</td>
 											</tr>
 											<tr>
-												<td>
+												<td style="width:20%;">
 													<b class="text-warning">go home</b>
 												</td>
 												<td>${attendance[0].time_departure}</td>
@@ -1702,13 +1706,13 @@
 												<td style="width:20%;">
 													<b class="text-success">come</b>
 												</td>
-												<td></td>
+												<td style="min-width: 80px;"></td>
 											</tr>
 											<tr>
-												<td>
+												<td style="width:20%;">
 													<b class="text-warning">go home</b>
 												</td>
-												<td></td>
+												<td style="min-width: 80px;"></td>
 											</tr>
 										</table>
 									</td>`

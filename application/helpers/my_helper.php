@@ -11,6 +11,17 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
  */
 
 /**
+ * Get Attendance Photo Path 
+ */
+function getAttendancePhotoPath(): array
+{
+	return [
+        'original'  => base_url().'assets/img/attendance_photo/',
+        'base'      => './assets/img/attendance_photo/',
+	];
+}
+
+/**
  * Get Img Profile Path 
  */
 function getProfilePath(): array

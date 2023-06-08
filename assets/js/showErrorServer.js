@@ -3,14 +3,14 @@ function showErrorServer(data) {
 		if (data.responseJSON.message == 'invalid token') {
 			
 			Swal.fire({
-				title: `Login berakhir!`,
-				text: 'silahkan login kembali untuk memperbarui login anda',
+				title: `Session expired!`,
+				text: 'please login again to update your session',
 				icon: 'warning',
 				showCancelButton: true,
 				confirmButtonColor: '#3085d6',
 				cancelButtonColor: '#6E7881',
-				confirmButtonText: 'Iya',
-				cancelButtonText: 'tutup',
+				confirmButtonText: 'Oke',
+				cancelButtonText: 'close',
 			}).then((result) => {
 				window.location.replace(BASEURL + "index.php/Logout");
 			})

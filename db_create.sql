@@ -2,6 +2,8 @@
 	DROP table
 	================================================ 
 */
+DROP TABLE IF EXISTS db_ci3_absensi_pegawai.employee_attendance_photos;
+
 DROP TABLE IF EXISTS db_ci3_absensi_pegawai.employee_attendances;
 
 DROP TABLE IF EXISTS db_ci3_absensi_pegawai.employee_task_documents;
@@ -130,13 +132,29 @@ CREATE TABLE employee_attendances
     attendanceId   INT(11)       AUTO_INCREMENT,
     employeeId     INT(11)       NOT NULL,
     day            VARCHAR(9)    NOT NULL,
-    time_arrives   VARCHAR(80)    DEFAULT NULL,
-    time_departure VARCHAR(80)    DEFAULT NULL,
+    time_arrives   VARCHAR(8)    DEFAULT NULL,
+    time_departure VARCHAR(8)    DEFAULT NULL,
     created_at     TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
     updated_at     TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY(attendanceId),
 	CONSTRAINT  fk_attandance_employees FOREIGN KEY (employeeId) REFERENCES employees (employeeId) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE employee_attendance_photos
+(
+    photoId      INT(11)       AUTO_INCREMENT,
+    employeeId   INT(11)       NOT NULL,
+    file_name1   VARCHAR(100)  DEFAULT NULL,
+    file_name2   VARCHAR(100)  DEFAULT NULL,
+    file_name3   VARCHAR(100)  DEFAULT NULL,
+    file_name4   VARCHAR(100)  DEFAULT NULL,
+    file_name5   VARCHAR(100)  DEFAULT NULL,
+    created_at   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY(photoId),
+	CONSTRAINT  fk_attandance_photo_employees FOREIGN KEY (employeeId) REFERENCES employees (employeeId) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 /* 
