@@ -21,8 +21,6 @@
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/adminlte.min.css'); ?>">
 	<!-- summernote -->
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/summernote/summernote-bs4.min.css'); ?>">
-	<!-- webCamLib -->
-	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/webCamLib.css'); ?>">
 	<!-- Toastify style -->
 	<link rel="stylesheet" href="<?= base_url('assets/css/plugins/toastify.min.css'); ?>">
 	<!-- Loading Spinner style -->
@@ -489,17 +487,40 @@
 				<div class="modal-body pt-4 pb-3">
 					<div id="mapAttendance" style="height: 400px;"></div>
 
-					<form action="" id="formAttendance">
-						<input type="hidden" id="latitude" class="form-control" name="latitude" />
-						<input type="hidden" id="longitude" class="form-control" name="longitude" />
+					<form action="" id="formAttendance" style="position: relative;">
+						<input type="hidden" id="latitude" name="latitude" />
+						<input type="hidden" id="longitude" name="longitude" />
+						<input type="file" id="photo" name="photo" style="position: absolute;z-index: -100;opacity: 0;"/>
 						<div class="form-group row mt-4">
-							<button type="submit" class="btn btn-info w-100">
+							<button type="button" class="btn btn-info w-100">
 								<b>ATTENDANCE</b>
 							</button>
 						</div>
 					</form>
 				</div>
 			</div>
+		</div>
+	</div>
+	<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modalTakeAttendancePhoto">
+		<div class="modal-dialog modal-xl">
+			<form class="modal-content" id="formTakeAttendancePhotos">
+				<div class="modal-header">
+					<h4 class="modal-title">Take Your Photo</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body pt-4 pb-5">
+					<div class="row">
+						<div class="col-12 d-flex justify-content-center" style="position: relative;">
+							<div id="my_camera" style=""></div>
+							<button id="camera_btn" type="button" class="btn btn-primary " style="position: absolute; bottom: -20px;">
+								<i class="fas fa-camera" style="font-size: 40px;"></i>
+							</button>
+						</div>
+					</div>
+				</div>
+			</form>
 		</div>
 	</div>
 
@@ -567,8 +588,6 @@
     <script src="<?= base_url('assets/js/plugins/sweetalert2.min.js');?>"></script>
 	<!-- Toastify -->
 	<script src="<?= base_url('assets/js/showToastify.js') ?>"></script>
-	<!-- Web Cam Lib -->
-	<script src="<?= base_url('assets/js/plugins/webCamLib.min.js') ?>"></script>
 	<!-- Loading Spinner -->
 	<script src="<?= base_url('assets/js/showLoadingSpinner.js') ?>"></script>
 	<!-- Img Viewer -->
@@ -1363,7 +1382,7 @@
 		}
 
 		/**
-		 * Initial Map
+		 * Show Map Attendance
 		 */
 		function showMapAttendance() {
 			if (navigator.geolocation) {
@@ -1432,7 +1451,7 @@
 								let betweenMeter = getDistanceBetween({ lat: dataYourLoc.coords.latitude, lng: dataYourLoc.coords.longitude }, { lat: parseFloat(res.data.latitude_attendance), lng: parseFloat(res.data.longitude_attendance) });
 								let range        = betweenMeter - parseFloat(res.data.max_distance_attendance); 
 
-								if (range > 8) {
+								if (range > parseFloat(res.data.max_distance_attendance)) {
 									var display  = new google.maps.DirectionsRenderer();
 									var services = new google.maps.DirectionsService();
 									display.setMap(map);
@@ -1447,6 +1466,12 @@
 											display.setDirections(result);
 										}
 									});
+
+									$('#formAttendance button').prop('disabled', true);
+									showToast("You are <b>too far</b> from the attendance area", "warning");
+								}
+								else {
+									$('#formAttendance button').prop('disabled', false);
 								}
 
 								// show button your location
@@ -1552,41 +1577,118 @@
 		}
 
 		/**
-		 * Insert Attendance
+		 * Show Camera After Click Attendance
 		 */
-		$('#formAttendance')
-			.submit(function(e) {
-				e.preventDefault();
-			})
-			.validate({
-				submitHandler: function () {
-					showLoadingSpinner();
-					
-					let form = new FormData(document.querySelector('#formAttendance'));
-					form.set("csrf_attend", "a3b1878d6218db944f23b6c7ff94e4dc");
-		
-					$.ajax({
-						type: "POST",
-						url: "<?php echo base_url() . 'index.php/EmployeeAttendance/insertAttendace'?>",
-						data: form,
-						cache: false,
-						processData:false,
-						contentType: false,
-						headers		: {
-							'token': $.cookie("_jwttoken"),
-						},
-						success:function(res) {
-							hideLoadingSpinner();
-							fn_get_all_attendaces();
-							showToast(res.message,'success');
-						},
-						error:function(res) {
-							hideLoadingSpinner();
-							showErrorServer(res);
-						}
+		$("#formAttendance button").on('click', function() {
+			if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+				showLoadingSpinner();
+
+				navigator.mediaDevices.getUserMedia({ video: true })
+					.then(function(stream) {
+						hideLoadingSpinner();
+						$('#modalTakeAttendancePhoto #my_camera video').remove();
+
+						const videoElement = document.createElement('video');
+						videoElement.srcObject = stream;
+						videoElement.autoplay = true;
+
+						document.querySelector('#modalTakeAttendancePhoto #my_camera').appendChild(videoElement);
+						$('#modalTakeAttendancePhoto').modal('show');
+					})
+					.catch(function(error) {
+						hideLoadingSpinner();
+						showToast("Please, enable your camera then refresh page!", "warning");
 					});
+			}
+			else {
+				showToast("Camera not supported in this browser.", "danger");
+			}
+		})
+
+		/**
+		 * Attendance after Take Photo
+		 */
+		$('#modalTakeAttendancePhoto #camera_btn').on('click', function () {
+			const myCamera = document.querySelector('#modalTakeAttendancePhoto #my_camera video');
+
+			const canvas  = document.createElement('canvas');
+			const context = canvas.getContext('2d');
+
+			canvas.width  = myCamera.videoWidth;
+			canvas.height = myCamera.videoHeight;
+			context.drawImage(myCamera, 0, 0, canvas.width, canvas.height);
+
+			const photo = canvas.toDataURL('image/png');
+			const file  = dataURLtoFile2(photo, `photo.png`);
+
+			// insert foto to input file
+			const dataTransfer = new DataTransfer();
+			dataTransfer.items.add(file);
+			document.querySelector("#formAttendance input[name=photo]").files = dataTransfer.files;
+
+			let form = new FormData(document.querySelector('#formAttendance'));
+			form.set("csrf_attend", "a3b1878d6218db944f23b6c7ff94e4dc");
+
+			showLoadingSpinner();
+		
+			$.ajax({
+				type: "POST",
+				url: "<?php echo base_url() . 'index.php/EmployeeAttendance/insertAttendace'?>",
+				data: form,
+				cache: false,
+				processData:false,
+				contentType: false,
+				headers		: {
+					'token': $.cookie("_jwttoken"),
+				},
+				success:function(res) {
+					hideLoadingSpinner();
+					$("#all_attendances_tab").click();
+
+					$('#modalTakeAttendancePhoto').modal('hide');
+					$('#modalMapAttendance').modal('hide');
+					
+					const myCamera = document.querySelector('#modalTakeAttendancePhoto #my_camera video');
+					const videoTrack = myCamera.srcObject.getVideoTracks()[0];
+					videoTrack.stop()
+
+					setTimeout(() => {
+						$('#modalTakeAttendancePhoto #my_camera video').remove();
+						showToast(res.message,'success');
+					}, 500);
+				},
+				error:function(res) {
+					hideLoadingSpinner();
+					if (res.status == 400) {
+						if (res.responseJSON.message == "no face") {
+							showToast("face not detected",'warning');
+						}
+						else if (res.responseJSON.message == "face mismatch") {
+							showToast("face mismatch, please try again!",'warning');
+						}
+						else {
+							showErrorServer(data);
+						}
+					}
+					else {
+						showErrorServer(data);
+					}
 				}
-			})
+			});
+		})
+
+		// Fungsi untuk mengubah data URL menjadi file
+		function dataURLtoFile2(dataURL, filename) {
+			const arr = dataURL.split(',');
+			const mime = arr[0].match(/:(.*?);/)[1];
+			const bstr = atob(arr[1]);
+			let n = bstr.length;
+			const u8arr = new Uint8Array(n);
+			while (n--) {
+				u8arr[n] = bstr.charCodeAt(n);
+			}
+			return new File([u8arr], filename, { type: mime });
+		}
 
 		/**
 		 * Initial Table All Attendances
@@ -1673,7 +1775,7 @@
 								week    : "-",
 								day     : row.day,
 								come    : `<b class="btn btn-outline-success">${row.time_arrives}</b>`,
-								go_home : `<b class="btn btn-outline-warning">${row.time_departure}</b>`,
+								go_home : row.time_departure ? `<b class="btn btn-outline-warning">${row.time_departure}</b>` : "--",
 								created_at : row.created_at ? moment(row.created_at, "YYYY-MM-DD HH:mm:ss").format("MMMM DD, YYYY") : '-',
 							});
 						});
@@ -1709,7 +1811,7 @@
 		}
 
 		/**
-		 * Get Attendaces Photo
+		 * Check is employee already take 5 attendance photo
 		 */
 		$.ajax({
 			type: "GET",
@@ -1718,24 +1820,25 @@
 				'token': $.cookie("_jwttoken"),
 			},
 			success:function(data) {
-				if (data.data == null) {
-					// Swal.fire({
-					// 	title: `You have not completed the attendance photo`,
-					// 	icon: 'warning',
-					// 	showCancelButton: true,
-					// 	confirmButtonColor: '#3085d6',
-					// 	cancelButtonColor: '#6E7881',
-					// 	confirmButtonText: 'Oke',
-					// 	cancelButtonText: 'close',
-					// }).then(() => {
-					// 	$('.content-wrapper').load('DashboardProfile');
-					// })
-				}
+				// nothing
 			},
 			error:function(data) {
-				hideLoadingSpinner();
-				
-				showErrorServer(data);
+				if (data.responseJSON.code == 404) {
+					Swal.fire({
+						title: `You have not completed the attendance photo`,
+						icon: 'warning',
+						showCancelButton: true,
+						confirmButtonColor: '#3085d6',
+						cancelButtonColor: '#6E7881',
+						confirmButtonText: 'Oke',
+						cancelButtonText: 'close',
+					}).then(() => {
+						$('.content-wrapper').load('DashboardProfile');
+					})
+				}
+				else {
+					showErrorServer(data);
+				}
 			}
 		})
 

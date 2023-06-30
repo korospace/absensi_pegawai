@@ -214,7 +214,7 @@ class EmployeeAttendance_model extends CI_Model
 	/*
 		Insert Attendace
 	*/
-	public function insertAttendace($input, $dataToken)
+	public function insertAttendace($input, $photo, $dataToken)
 	{
 		$employeeData = $this->getEmployeeData($dataToken->userId);
 
@@ -255,6 +255,10 @@ class EmployeeAttendance_model extends CI_Model
 					];
 				} 
 				else {
+					/**
+					 * Location Validation
+					 */
+					// Get distance between employee and office
 					$R = 6371000; // meter
 					$latFrom = deg2rad((float)$dataConfAttendance->latitude_attendance);
 					$lonFrom = deg2rad((float)$dataConfAttendance->longitude_attendance);
@@ -267,7 +271,8 @@ class EmployeeAttendance_model extends CI_Model
 	
 					$angle = atan2(sqrt($a), $b);
 					$result= $angle * $R;
-	
+					
+					// cek if employee to far away from office
 					if ($result > $dataConfAttendance->max_distance_attendance) {
 						return [
 							'code'   => 401,
@@ -277,26 +282,69 @@ class EmployeeAttendance_model extends CI_Model
 					}
 					else {
 						$msg = "";
-						$this->db->set('employeeId',     $employeeData->employeeId);
-						$this->db->set('day',		     $today);
-						
-						if (is_null($todayAttend)) {
-							$msg = "absensi <b>datang</b> berhasil..!";
-							$this->db->set('time_arrives',   date("H:i:s",  time()));
-							$this->db->set('time_departure', null);
-							$this->db->insert('employee_attendances');
+
+						/**
+					 	* Face Validation
+					 	*/
+						// ambil nama file foto
+						$photoName = $photo['name'];
+						// Menggabungkan $userId dan $files menjadi satu string dalam format multipart/form-data
+						$postData = '';
+						// Menambahkan nilai $userId ke dalam payload
+						$postData .= "-----011000010111000001101001\r\n";
+						$postData .= "Content-Disposition: form-data; name=\"employeeid\"\r\n\r\n";
+						$postData .= $employeeData->employeeId . "\r\n";
+						// Menambahkan file-file dari $files ke dalam payload
+						$postData .= "-----011000010111000001101001\r\n";
+						$postData .= "Content-Disposition: form-data; name=\"photo\"; filename=\"$photoName\"\r\n";
+						$postData .= "Content-Type: " . $photo['type'] . "\r\n\r\n";
+						$postData .= file_get_contents($photo['tmp_name']) . "\r\n";
+						// Menambahkan penutup payload
+						$postData .= "-----011000010111000001101001--\r\n";
+						// Mendefinisikan URL endpoint Flask
+						$url = "http://localhost:5000/api/compare_face";
+						// Membuat objek cURL
+						$ch = curl_init();
+						// Mengatur opsi cURL
+						curl_setopt($ch, CURLOPT_URL, $url);
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+						curl_setopt($ch, CURLOPT_POST, true);
+						curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+						curl_setopt($ch, CURLOPT_HTTPHEADER, [
+							"content-type: multipart/form-data; boundary=---011000010111000001101001"
+						]);
+						// Menjalankan request cURL dan mendapatkan responsenya
+						$result = curl_exec($ch);
+						$result = json_decode($result);
+						$result_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+						if ($result_code == 200) {
+							$this->db->set('employeeId',     $employeeData->employeeId);
+							$this->db->set('day',		     $today);
+							
+							if (is_null($todayAttend)) {
+								// $msg = "absensi <b>datang</b> berhasil..!";
+								$msg = $result->message;
+								$this->db->set('time_arrives',   date("H:i:s",  time()));
+								$this->db->set('time_departure', null);
+								$this->db->insert('employee_attendances');
+							}
+							elseif ($todayAttend->time_arrives && is_null($todayAttend->time_departure)) {
+								// $msg = "absensi <b>pulang</b> berhasil..!";
+								$msg = $result->message;
+								$this->db->set('time_departure', date("H:i:s",  time()));
+								$this->db->where('attendanceId', $todayAttend->attendanceId);
+								$this->db->update('employee_attendances');
+							}
 						}
-						elseif ($todayAttend->time_arrives && is_null($todayAttend->time_departure)) {
-							$msg = "absensi <b>pulang</b> berhasil..!";
-							$this->db->set('time_departure', date("H:i:s",  time()));
-							$this->db->where('attendanceId', $todayAttend->attendanceId);
-							$this->db->update('employee_attendances');
+						else {
+							$msg = $result->message;
 						}
 	
 						return [
-							'code'   => 200,
-							'status' => true,
-							'message'=> $msg,
+							'code'    => $result_code,
+							'status'  => $result_code==200 ? true : false,
+							'message' => $msg
 						];
 					}
 				}

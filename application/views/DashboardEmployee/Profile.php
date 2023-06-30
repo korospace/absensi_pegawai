@@ -7,13 +7,6 @@
 	<title></title>
 
 	<style>
-		/* #modalTakeAttendancePhoto .modal-dialog {
-			max-width: 100% !important;
-		}
-
-		#modalTakeAttendancePhoto .modal-content {
-			max-width: 100% !important;
-		} */
 	</style>
 </head>
 <body>
@@ -104,33 +97,33 @@
 	<!-- ==================
 			Modals
 	=================== -->
-	<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modalTakeAttendancePhoto">
+	<div class="modal fade" data-keyboard="false" data-backdrop="static" id="modalTakeAttendancePhotos">
 		<div class="modal-dialog modal-xl">
-			<form class="modal-content" id="formTakeAttendancePhoto">
+			<form class="modal-content" id="formTakeAttendancePhotos">
 				<div class="modal-header">
 					<h4 class="modal-title">Take Your Photo</h4>
 				</div>
 				<div class="modal-body pt-4 pb-3">
 					<div class="row">
-						<div class="col-12 d-flex justify-content-center">
-							<div class="image-capture"></div>
+						<div class="col-12 d-flex justify-content-center" style="position: relative;">
+							<div id="my_camera" style=""></div>
+							<button id="camera_btn" type="button" class="btn btn-primary " style="position: absolute; bottom: -20px;">
+								<i class="fas fa-camera" style="font-size: 40px;"></i>
+							</button>
 						</div>
-						<div class="col-12 mt-3 mb-3 px-3">
+						<div class="col-12 mt-4 pt-1 px-3">
 							<div class="dropdown-divider"></div>
-						</div>
-						<div class="col-12">
-							<!-- <h4 class="text-secondary pl-1">Example: </h4> -->
 						</div>
 						<div class="col-12 d-flex">
 							<?php for ($i=1; $i < 6; $i++) { ?>
-								<div id="wraper_file_name<?= $i ?>" style="flex: 1;position: relative;">
-									<input type="file" name="file_name[<?= $i ?>]" id="file_name[<?= $i ?>]" style="position: absolute;z-index: -100;opacity: 0;">
-									<div class="p-2 d-flex justify-content-center align-items-center" style="position: relative;width: 100%;height: 100%;">
-										<h5 class="text-secondary" style="position: absolute;opacity: 0.6;">
-											<b><?= $i ?></b>
-										</h5>
-										<div class="bg-secondary" style="width: 100%;height: 100%;overflow: hidden;border-radius: 4px;opacity: 0.5;">
-											<img class="img-thumbnail" src="<?= base_url("assets/img/attendance_photo/example/example$i.jpeg") ?>" style="max-width: 100%;height: 100%;opacity: 0.5;">
+								<div id="wraper_photo<?= $i ?>" class="wraper_file" style="flex: 1;position: relative;height: 92px;">
+									<input type="file" name="photo[<?= $i ?>]" id="photo<?= $i ?>" style="position: absolute;z-index: -100;opacity: 0;">
+									<div class="p-2" style="width: 100%;height: 100%;">
+										<div class="place_photo d-flex justify-content-center align-items-center" style="width: 100%;height: 100%;overflow: hidden;border-radius: 4px;position: relative;z-index: 1;">
+											<h5 class="text-primary" style="position: absolute;opacity: 0.6;z-index: 10;">
+												<b><?= $i ?></b>
+											</h5>
+											<img class="img-thumbnail" src="<?= base_url("assets/img/attendance_photo/example/example$i.jpeg") ?>" style="width: 100%;height: 100%;opacity: 0.4;">
 										</div> 
 									</div>
 								</div>
@@ -139,11 +132,13 @@
 					</div>
 				</div>
 				<div class="modal-footer justify-content-between">
-					<button type="button" class="btn btn-default" >
+					<button id="retake_foto" type="button" class="btn btn-default" >
 						<i class="fas fa-edit"></i>
 						Retake
 					</button>
-					<button type="submit" class="btn btn-success">Save</button>
+					<button id="submit_foto" type="submit" class="btn btn-success">
+						Save
+					</button>
 				</div>
 			</form>
 		</div>
@@ -309,22 +304,7 @@
 			});
 
 		/**
-		 * Web Cam Initialization
-		 */
-		$('#modalTakeAttendancePhoto .image-capture').customWebCam({
-			videoClass: ['face-capture-video'],
-			canvasClass: ['face-capture-canvas'],
-			facingMode: "user",
-			captureTimeoutInSeconds: 0,
-			callbackFunction: 'setCapturedImage',
-		});
-
-		function setCapturedImage(imageBase64) {
-			$('body').append($('<img>', {src: imageBase64}));
-		}
-
-		/**
-		 * Get Attendaces Photo
+		 * Show Camera to Take Attendance Photos
 		 */
 		$.ajax({
 			type: "GET",
@@ -333,16 +313,186 @@
 				'token': $.cookie("_jwttoken"),
 			},
 			success:function(data) {
-				if (data.data == null) {
-					// $('#modalTakeAttendancePhoto').modal('show');
-				}
+				// nothing
 			},
 			error:function(data) {
-				hideLoadingSpinner();
-				
-				showErrorServer(data);
+				if (data.responseJSON.code == 404) {
+					showOrHideBtnSubmitFoto();
+
+					if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+						showLoadingSpinner();
+
+						navigator.mediaDevices.getUserMedia({ video: true })
+							.then(function(stream) {
+								hideLoadingSpinner();
+
+								const videoElement = document.createElement('video');
+								videoElement.srcObject = stream;
+								videoElement.autoplay = true;
+
+								document.querySelector('#modalTakeAttendancePhotos #my_camera').appendChild(videoElement);
+								$('#modalTakeAttendancePhotos').modal('show');
+							})
+							.catch(function(error) {
+								hideLoadingSpinner();
+								showToast("Please, enable your camera then refresh page!", "warning");
+							});
+					}
+					else {
+						showToast("Camera not supported in this browser.", "danger");
+					}
+				}
+				else {
+					showErrorServer(data);
+				}
 			}
 		})
+
+		// Capture Photo
+		let counterPhoto = 0;
+
+		$('#modalTakeAttendancePhotos #camera_btn').on('click', function () {
+			
+			let next = false;
+
+			document.querySelectorAll("#modalTakeAttendancePhotos .wraper_file").forEach(e => {
+				let inputFileX = e.querySelector('input[type=file]');
+				
+				if (inputFileX.files.length === 0 && !next) {
+					const myCamera = document.querySelector('#modalTakeAttendancePhotos #my_camera video');
+		
+					const canvas  = document.createElement('canvas');
+					const context = canvas.getContext('2d');
+		
+					canvas.width  = myCamera.videoWidth;
+					canvas.height = myCamera.videoHeight;
+					context.drawImage(myCamera, 0, 0, canvas.width, canvas.height);
+		
+					const photo = canvas.toDataURL('image/png');
+					const file  = dataURLtoFile1(photo, `photo${++counterPhoto}.png`);
+					
+					const reader = new FileReader();
+
+					reader.onload = function (event) {
+						const imageSrc = event.target.result;
+						const imgElement = document.createElement('img');
+						imgElement.className = 'img-thumbnail img-preview';
+						imgElement.src = imageSrc;
+						imgElement.style = 'width: 100%; max-width: 100%; height: 100%; position: absolute; z-index: 20;';
+
+						e.querySelector('.place_photo').appendChild(imgElement);
+					};
+
+					reader.readAsDataURL(file);
+
+					// insert foto to input file
+					const dataTransfer = new DataTransfer();
+					dataTransfer.items.add(file);
+					inputFileX.files = dataTransfer.files;
+
+					// break looping
+					next = true;
+				}
+			})
+
+			showOrHideBtnSubmitFoto();
+		})
+
+		// Fungsi untuk mengubah data URL menjadi file
+        function dataURLtoFile1(dataURL, filename) {
+            const arr = dataURL.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new File([u8arr], filename, { type: mime });
+        }
+
+		// Fungsi untuk mengecek jika sudah 5 kali take foto maka munculkan button submit
+		function showOrHideBtnSubmitFoto() {
+			if (counterPhoto == 5) {
+				$('#modalTakeAttendancePhotos #submit_foto').show();
+			}
+			else {
+				$('#modalTakeAttendancePhotos #submit_foto').hide();
+			}
+		}
+
+		// retake foto
+		$('#modalTakeAttendancePhotos #retake_foto').on('click', function () {
+			counterPhoto = 0;
+
+			const wrapperFiles = document.querySelectorAll("#modalTakeAttendancePhotos .wraper_file");
+
+			wrapperFiles.forEach(e => {
+				const inputFileX = e.querySelector('input[type=file]');
+				const placeFoto = e.querySelector('.place_photo');
+
+				// Menghapus elemen gambar yang memiliki kelas .img-preview
+				const imgElements = placeFoto.querySelectorAll('.img-preview');
+				imgElements.forEach(imgElement => {
+					imgElement.remove();
+				});
+
+				// Menghapus nilai file dari input file
+				inputFileX.value = "";
+				if (inputFileX.files) {
+					inputFileX.files = null;
+				}
+			});
+
+			showOrHideBtnSubmitFoto()
+		})
+
+		/*
+			Submit attendance photos
+		*/
+		$('#formTakeAttendancePhotos')
+			.submit(function(e) {
+				e.preventDefault();
+				showLoadingSpinner();
+
+				let form = new FormData(e.target); 
+
+				$.ajax({
+					type: "POST",
+					url: "<?php echo base_url() . 'index.php/DashboardProfile/saveAttendancePhotos'?>",
+					data: form,
+					cache: false,
+					processData:false,
+					contentType: false,
+					headers		: {
+						'token': $.cookie("_jwttoken"),
+					},
+					success:function(data) {
+						hideLoadingSpinner();
+						$('#modalTakeAttendancePhotos').modal('hide');
+						showToast("photos successfully <b>saved..!</b>",'success');
+
+						const myCamera = document.querySelector('#modalTakeAttendancePhotos #my_camera video');
+						const videoTrack = myCamera.srcObject.getVideoTracks()[0];
+						videoTrack.stop()
+					},
+					error:function(data) {
+						hideLoadingSpinner();
+
+						if (data.status == 400) {
+							if (data.responseJSON.message == "no face") {
+								showToast("Some of the photos <b>do not contain</b> any face",'warning');
+							}
+							else {
+								showErrorServer(data);
+							}
+						}
+						else {
+							showErrorServer(data);
+						}
+					}
+				});
+			})
 	</script>
 </body>
 </html>

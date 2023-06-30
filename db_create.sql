@@ -2,7 +2,7 @@
 	DROP table
 	================================================ 
 */
-DROP TABLE IF EXISTS db_ci3_absensi_pegawai.employee_attendance_photos;
+-- DROP TABLE IF EXISTS db_ci3_absensi_pegawai.employee_attendance_photos;
 
 DROP TABLE IF EXISTS db_ci3_absensi_pegawai.employee_attendances;
 
@@ -141,21 +141,21 @@ CREATE TABLE employee_attendances
 	CONSTRAINT  fk_attandance_employees FOREIGN KEY (employeeId) REFERENCES employees (employeeId) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
-CREATE TABLE employee_attendance_photos
-(
-    photoId      INT(11)       AUTO_INCREMENT,
-    employeeId   INT(11)       NOT NULL,
-    file_name1   VARCHAR(100)  DEFAULT NULL,
-    file_name2   VARCHAR(100)  DEFAULT NULL,
-    file_name3   VARCHAR(100)  DEFAULT NULL,
-    file_name4   VARCHAR(100)  DEFAULT NULL,
-    file_name5   VARCHAR(100)  DEFAULT NULL,
-    created_at   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
-    updated_at   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+-- CREATE TABLE employee_attendance_photos
+-- (
+--     photoId      INT(11)       AUTO_INCREMENT,
+--     employeeId   INT(11)       NOT NULL,
+--     file_name1   VARCHAR(100)  DEFAULT NULL,
+--     file_name2   VARCHAR(100)  DEFAULT NULL,
+--     file_name3   VARCHAR(100)  DEFAULT NULL,
+--     file_name4   VARCHAR(100)  DEFAULT NULL,
+--     file_name5   VARCHAR(100)  DEFAULT NULL,
+--     created_at   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+--     updated_at   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY(photoId),
-	CONSTRAINT  fk_attandance_photo_employees FOREIGN KEY (employeeId) REFERENCES employees (employeeId) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB;
+--     PRIMARY KEY(photoId),
+-- 	CONSTRAINT  fk_attandance_photo_employees FOREIGN KEY (employeeId) REFERENCES employees (employeeId) ON DELETE CASCADE ON UPDATE CASCADE
+-- ) ENGINE = InnoDB;
 
 /* 
 	INSERT table
@@ -185,6 +185,11 @@ INSERT INTO users (userLevelId,username,password) VALUES (
 	'rilo123',
 	'0bda6e6c54182f57379d448a5acbb77dc3fbedf57f80fc8fca84c5efa92fba36d245dc46d8c3fbabc233669951e8656f21a00231c394168925114d1cd4821e1fa1BV5OJ8ge7zZN8mpRnPoFKpj03N22q11OZ/IIaIn/k='
 );
+INSERT INTO users (userLevelId,username,password) VALUES (
+	2,
+	'bagas123',
+	'8c69a2bf12a6190ff8328ff5b9a8ff745bcfd8150a9d67eed40c0d33dd977b426308adb1df12d6a0d03248dabdb710ef609d5649592923bd3b522d73e987dd50GQuTMO6PXBKmh4XGLhgMgiJOMvt8fgYJjgeoOfFgEO8='
+);
 
 INSERT INTO managers (userId,name) VALUES (
 	1,
@@ -204,4 +209,9 @@ INSERT INTO employees (userId,managerId,name) VALUES (
 	4,
 	2,
 	'rilo anggoro'
+);
+INSERT INTO employees (userId,managerId,name) VALUES (
+	5,
+	1,
+	'Muhammad Akbar'
 );

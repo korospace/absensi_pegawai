@@ -79,23 +79,6 @@ class DashboardProfile extends CI_Controller {
 	}
 
 	/**
-	 * API - Get Attendance Photo - Employee
-	 * ======================
-	 */
-	public function getEmployeeAttendancePhotos()
-	{
-		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
-        $dataToken = checkToken($token, true);
-
-		$dbResponse = $this->DashboardProfile_model->getEmployeeAttendancePhotos($dataToken['data']->userId);
-
-		return $this->output
-			->set_content_type('application/json')
-			->set_status_header($dbResponse['code'])
-			->set_output(json_encode($dbResponse));
-	}
-
-	/**
 	 * Api - Edit Profile - Manager
 	 * ===================
 	 */
@@ -216,6 +199,40 @@ class DashboardProfile extends CI_Controller {
 		}
 
 		$dbResponse = $this->DashboardProfile_model->editProfileEmployee($this->input,$dataToken['data']->userId,$this);
+
+		return $this->output
+			->set_content_type('application/json')
+			->set_status_header($dbResponse['code'])
+			->set_output(json_encode($dbResponse));
+	}
+
+	/**
+	 * API - Get Attendance Photos
+	 * ======================
+	 */
+	public function getEmployeeAttendancePhotos()
+	{
+		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
+        $dataToken = checkToken($token, true);
+
+		$dbResponse = $this->DashboardProfile_model->getEmployeeAttendancePhotos($dataToken['data']->userId);
+
+		return $this->output
+			->set_content_type('application/json')
+			->set_status_header($dbResponse['code'])
+			->set_output(json_encode($dbResponse));
+	}
+
+	/**
+	 * API - Save Attendance Photos
+	 * ===================
+	 */
+	public function saveAttendancePhotos() 
+	{
+		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
+        $dataToken = checkToken($token, true);
+
+		$dbResponse = $this->DashboardProfile_model->saveAttendancePhotos($dataToken['data']->userId,$_FILES['photo']);
 
 		return $this->output
 			->set_content_type('application/json')

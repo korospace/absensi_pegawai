@@ -25,6 +25,8 @@ class Login extends CI_Controller {
 	 */
 	public function index()
 	{
+		// var_dump($this->encryption->encrypt("bagas123"));die;
+		
         $token     = isset($_COOKIE['_jwttoken']) ? $_COOKIE['_jwttoken'] : null;
         $dataToken = checkToken($token);
 

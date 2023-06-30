@@ -48,9 +48,9 @@ class EmployeeAttendance extends CI_Controller {
 		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
         $dataToken = checkToken($token, true);
 
-		if ($this->input->post('latitude') && $this->input->post('longitude'))
+		if ($this->input->post('latitude') && $this->input->post('longitude') && isset($_FILES['photo']))
 		{
-			$dbResponse = $this->EmployeeAttendance_model->insertAttendace($this->input,$dataToken['data']);
+			$dbResponse = $this->EmployeeAttendance_model->insertAttendace($this->input, $_FILES['photo'], $dataToken['data']);
 
 			return $this->output
 				->set_content_type('application/json')

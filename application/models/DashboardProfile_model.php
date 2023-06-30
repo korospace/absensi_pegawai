@@ -50,30 +50,6 @@ class DashboardProfile_model extends CI_Model
     }
 
 	/**
-	 * Get Attendance Photo
-	 */
-    public function getEmployeeAttendancePhotos($userId)
-    {
-		$this->db->select('*');
-		$this->db->from('employee_attendance_photos etp');
-		$this->db->join('employees e', 'etp.employeeId = e.employeeId');
-        $this->db->where('e.userId =', $userId);
-
-        $query = $this->db->get();
-		$query = $query->first_row();
-		
-		if ($query) {
-			$query->asset_path = getAttendancePhotoPath()['original'];
-		}
-
-		return [
-			'code'    => 200,
-			'status'  => true,
-			'data'    => $query
-		];
-    }
-
-	/**
 	 * Edit Profile - Manager
 	 */
 	public function editProfileManager($input,$userId,$controller)
@@ -168,6 +144,89 @@ class DashboardProfile_model extends CI_Model
 			'message' => $affectedRows > 0 ? "profile successfully updated" : "nothing update",
 		];
 	}
+
+	/**
+	 * Get Attendance Photos
+	 */
+    public function getEmployeeAttendancePhotos($userId)
+    {
+        $url = "http://127.0.0.1:5000/api/check_employee_folder?employeeid=" . $this->getEmployeeID($userId);
+		$curlInit = curl_init();
+
+        curl_setopt($curlInit, CURLOPT_URL, $url);
+        curl_setopt($curlInit, CURLOPT_RETURNTRANSFER, true);
+
+        $result = curl_exec($curlInit);
+		$result = json_decode($result);
+        $result_code = curl_getinfo($curlInit, CURLINFO_HTTP_CODE);
+
+		return [
+			'code'    => $result_code,
+			'status'  => $result_code==200 ? true : false,
+			'message' => $result->message
+		];
+    }
+
+	/**
+	 * Save Attendance Photos
+	 */
+    public function saveAttendancePhotos($userId, $files)
+    {
+		// Menggabungkan $userId dan $files menjadi satu string dalam format multipart/form-data
+		$postData = '';
+
+		// Menambahkan nilai $userId ke dalam payload
+		$postData .= "-----011000010111000001101001\r\n";
+		$postData .= "Content-Disposition: form-data; name=\"employeeid\"\r\n\r\n";
+		$postData .= $this->getEmployeeID($userId) . "\r\n";
+
+		// Menambahkan file-file dari $files ke dalam payload
+		foreach ($files['name'] as $index => $name) {
+			$postData .= "-----011000010111000001101001\r\n";
+			$postData .= "Content-Disposition: form-data; name=\"photo\"; filename=\"$name\"\r\n";
+			$postData .= "Content-Type: " . $files['type'][$index] . "\r\n\r\n";
+			$postData .= file_get_contents($files['tmp_name'][$index]) . "\r\n";
+		}
+
+		// Menambahkan penutup payload
+		$postData .= "-----011000010111000001101001--\r\n";
+
+		// Mendefinisikan URL endpoint Flask
+		$url = "http://localhost:5000/api/create_model_file";
+
+		// Membuat objek cURL
+		$ch = curl_init();
+	
+		// Mengatur opsi cURL
+		curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, [
+			"content-type: multipart/form-data; boundary=---011000010111000001101001"
+		]);
+	
+		// Menjalankan request cURL dan mendapatkan responsenya
+		$result = curl_exec($ch);
+		$result = json_decode($result);
+        $result_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+		return [
+			'code'    => $result_code,
+			'status'  => $result_code==200 ? true : false,
+			'message' => $result->message
+		];
+	}
+
+	## Get Employee ID
+    protected function getEmployeeID($userId)
+    {
+		$this->db->select('employeeId');
+        $this->db->where('userId =', $userId);
+
+        $query = $this->db->get('employees');
+		return $query->first_row()->employeeId;
+    }
 
 	## Get Old Profile Img
 	protected function getOldProfileImg($tableName,$userId)
