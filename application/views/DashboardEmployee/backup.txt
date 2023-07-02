@@ -1,0 +1,135 @@
+let counterPhoto = 0;
+
+$('#modalTakeAttendancePhotos #camera_btn').on('click', function () {
+	
+	let next = false;
+
+	document.querySelectorAll("#modalTakeAttendancePhotos .wraper_file").forEach(e => {
+		let inputFileX = e.querySelector('input[type=file]');
+		
+		if (inputFileX.files.length === 0 && !next) {
+			const myCamera = document.querySelector('#modalTakeAttendancePhotos #my_camera video');
+
+			const canvas  = document.createElement('canvas');
+			const context = canvas.getContext('2d');
+
+			canvas.width  = myCamera.videoWidth;
+			canvas.height = myCamera.videoHeight;
+			context.drawImage(myCamera, 0, 0, canvas.width, canvas.height);
+
+			const photo = canvas.toDataURL('image/png');
+			const file  = dataURLtoFile1(photo, `photo${++counterPhoto}.png`);
+			
+			const reader = new FileReader();
+
+			reader.onload = function (event) {
+				const imageSrc = event.target.result;
+				const imgElement = document.createElement('img');
+				imgElement.className = 'img-thumbnail img-preview';
+				imgElement.src = imageSrc;
+				imgElement.style = 'width: 100%; max-width: 100%; height: 100%; position: absolute; z-index: 20;';
+
+				e.querySelector('.place_photo').appendChild(imgElement);
+			};
+
+			reader.readAsDataURL(file);
+
+			// insert foto to input file
+			const dataTransfer = new DataTransfer();
+			dataTransfer.items.add(file);
+			inputFileX.files = dataTransfer.files;
+
+			// break looping
+			next = true;
+		}
+	})
+
+	showOrHideBtnSubmitFoto();
+})
+
+// Fungsi untuk mengecek jika sudah 5 kali take foto maka munculkan button submit
+function showOrHideBtnSubmitFoto() {
+	if (counterPhoto == 5) {
+		$('#modalTakeAttendancePhotos #submit_foto').show();
+	}
+	else {
+		$('#modalTakeAttendancePhotos #submit_foto').hide();
+	}
+}
+
+// retake foto
+$('#modalTakeAttendancePhotos #retake_foto').on('click', function () {
+	counterPhoto = 0;
+
+	const wrapperFiles = document.querySelectorAll("#modalTakeAttendancePhotos .wraper_file");
+
+	wrapperFiles.forEach(e => {
+		const inputFileX = e.querySelector('input[type=file]');
+		const placeFoto = e.querySelector('.place_photo');
+
+		// Menghapus elemen gambar yang memiliki kelas .img-preview
+		const imgElements = placeFoto.querySelectorAll('.img-preview');
+		imgElements.forEach(imgElement => {
+			imgElement.remove();
+		});
+
+		// Menghapus nilai file dari input file
+		inputFileX.value = "";
+		if (inputFileX.files) {
+			inputFileX.files = null;
+		}
+	});
+
+	showOrHideBtnSubmitFoto()
+})
+
+/**
+* Save Attendance Photos
+*/
+public function saveAttendancePhotos($userId, $files)
+{
+	// Menggabungkan $userId dan $files menjadi satu string dalam format multipart/form-data
+	$postData = '';
+
+	// Menambahkan nilai $userId ke dalam payload
+	$postData .= "-----011000010111000001101001\r\n";
+	$postData .= "Content-Disposition: form-data; name=\"employeeid\"\r\n\r\n";
+	$postData .= $this->getEmployeeID($userId) . "\r\n";
+
+	// Menambahkan file-file dari $files ke dalam payload
+	foreach ($files['name'] as $index => $name) {
+		$postData .= "-----011000010111000001101001\r\n";
+		$postData .= "Content-Disposition: form-data; name=\"photo\"; filename=\"$name\"\r\n";
+		$postData .= "Content-Type: " . $files['type'][$index] . "\r\n\r\n";
+		$postData .= file_get_contents($files['tmp_name'][$index]) . "\r\n";
+	}
+
+	// Menambahkan penutup payload
+	$postData .= "-----011000010111000001101001--\r\n";
+
+	// Mendefinisikan URL endpoint Flask
+	$url = "http://localhost:5000/api/create_model_file";
+
+	// Membuat objek cURL
+	$ch = curl_init();
+
+	// Mengatur opsi cURL
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_POST, true);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, [
+		"content-type: multipart/form-data; boundary=---011000010111000001101001"
+	]);
+
+	// Menjalankan request cURL dan mendapatkan responsenya
+	$result = curl_exec($ch);
+	$result = json_decode($result);
+	$result_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+	return [
+		'code'    => $result_code,
+		'status'  => $result_code==200 ? true : false,
+		'message' => $result->message
+	];
+}

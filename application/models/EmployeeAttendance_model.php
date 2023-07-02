@@ -294,7 +294,7 @@ class EmployeeAttendance_model extends CI_Model
 						$postData .= "-----011000010111000001101001\r\n";
 						$postData .= "Content-Disposition: form-data; name=\"employeeid\"\r\n\r\n";
 						$postData .= $employeeData->employeeId . "\r\n";
-						// Menambahkan file-file dari $files ke dalam payload
+						// Menambahkan file dari $files ke dalam payload
 						$postData .= "-----011000010111000001101001\r\n";
 						$postData .= "Content-Disposition: form-data; name=\"photo\"; filename=\"$photoName\"\r\n";
 						$postData .= "Content-Type: " . $photo['type'] . "\r\n\r\n";

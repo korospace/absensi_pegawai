@@ -170,33 +170,27 @@ class DashboardProfile_model extends CI_Model
 	/**
 	 * Save Attendance Photos
 	 */
-    public function saveAttendancePhotos($userId, $files)
+    public function saveAttendancePhotos($userId, $photo)
     {
+		// ambil nama file foto
+		$photoName = $photo['name'];
 		// Menggabungkan $userId dan $files menjadi satu string dalam format multipart/form-data
 		$postData = '';
-
 		// Menambahkan nilai $userId ke dalam payload
 		$postData .= "-----011000010111000001101001\r\n";
 		$postData .= "Content-Disposition: form-data; name=\"employeeid\"\r\n\r\n";
 		$postData .= $this->getEmployeeID($userId) . "\r\n";
-
-		// Menambahkan file-file dari $files ke dalam payload
-		foreach ($files['name'] as $index => $name) {
-			$postData .= "-----011000010111000001101001\r\n";
-			$postData .= "Content-Disposition: form-data; name=\"photo\"; filename=\"$name\"\r\n";
-			$postData .= "Content-Type: " . $files['type'][$index] . "\r\n\r\n";
-			$postData .= file_get_contents($files['tmp_name'][$index]) . "\r\n";
-		}
-
+		// Menambahkan file dari $files ke dalam payload
+		$postData .= "-----011000010111000001101001\r\n";
+		$postData .= "Content-Disposition: form-data; name=\"photo\"; filename=\"$photoName\"\r\n";
+		$postData .= "Content-Type: " . $photo['type'] . "\r\n\r\n";
+		$postData .= file_get_contents($photo['tmp_name']) . "\r\n";
 		// Menambahkan penutup payload
 		$postData .= "-----011000010111000001101001--\r\n";
-
 		// Mendefinisikan URL endpoint Flask
 		$url = "http://localhost:5000/api/create_model_file";
-
 		// Membuat objek cURL
 		$ch = curl_init();
-	
 		// Mengatur opsi cURL
 		curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -205,7 +199,6 @@ class DashboardProfile_model extends CI_Model
 		curl_setopt($ch, CURLOPT_HTTPHEADER, [
 			"content-type: multipart/form-data; boundary=---011000010111000001101001"
 		]);
-	
 		// Menjalankan request cURL dan mendapatkan responsenya
 		$result = curl_exec($ch);
 		$result = json_decode($result);

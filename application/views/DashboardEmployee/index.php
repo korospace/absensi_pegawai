@@ -1670,6 +1670,9 @@
 							showErrorServer(data);
 						}
 					}
+					else if (res.status == 401) {
+						showToast(res.responseJSON.message,'warning');
+					}
 					else {
 						showErrorServer(data);
 					}

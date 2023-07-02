@@ -7,6 +7,9 @@
 	<title></title>
 
 	<style>
+		#formTakeAttendancePhotos video {
+			width: 100%;
+		}
 	</style>
 </head>
 <body>
@@ -103,18 +106,20 @@
 				<div class="modal-header">
 					<h4 class="modal-title">Take Your Photo</h4>
 				</div>
-				<div class="modal-body pt-4 pb-3">
+				<div class="modal-body pt-4 pb-5">
 					<div class="row">
-						<div class="col-12 d-flex justify-content-center" style="position: relative;">
+						<div id="wraper_photo" class="col-12 d-flex justify-content-center" style="position: relative;">
 							<div id="my_camera" style=""></div>
 							<button id="camera_btn" type="button" class="btn btn-primary " style="position: absolute; bottom: -20px;">
 								<i class="fas fa-camera" style="font-size: 40px;"></i>
 							</button>
+
+							<input type="file" name="photo" id="photo" style="position: absolute;z-index: -100;opacity: 0;">
 						</div>
-						<div class="col-12 mt-4 pt-1 px-3">
+						<!-- <div class="col-12 mt-4 pt-1 px-3">
 							<div class="dropdown-divider"></div>
-						</div>
-						<div class="col-12 d-flex">
+						</div> -->
+						<!-- <div class="col-12 d-flex">
 							<?php for ($i=1; $i < 6; $i++) { ?>
 								<div id="wraper_photo<?= $i ?>" class="wraper_file" style="flex: 1;position: relative;height: 92px;">
 									<input type="file" name="photo[<?= $i ?>]" id="photo<?= $i ?>" style="position: absolute;z-index: -100;opacity: 0;">
@@ -128,7 +133,7 @@
 									</div>
 								</div>
 							<?php } ?>
-						</div>
+						</div> -->
 					</div>
 				</div>
 				<div class="modal-footer justify-content-between">
@@ -317,7 +322,9 @@
 			},
 			error:function(data) {
 				if (data.responseJSON.code == 404) {
-					showOrHideBtnSubmitFoto();
+					$('#modalTakeAttendancePhotos .modal-body').removeClass('pb-4').addClass('pb-5');
+					$('#modalTakeAttendancePhotos .modal-footer').hide();
+					$('#modalTakeAttendancePhotos #camera_btn').show();
 
 					if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 						showLoadingSpinner();
@@ -325,6 +332,7 @@
 						navigator.mediaDevices.getUserMedia({ video: true })
 							.then(function(stream) {
 								hideLoadingSpinner();
+								$('#modalTakeAttendancePhotos #my_camera video').remove();
 
 								const videoElement = document.createElement('video');
 								videoElement.srcObject = stream;
@@ -349,53 +357,41 @@
 		})
 
 		// Capture Photo
-		let counterPhoto = 0;
-
 		$('#modalTakeAttendancePhotos #camera_btn').on('click', function () {
+			$('#modalTakeAttendancePhotos .modal-body').removeClass('pb-5').addClass('pb-4');
+			$('#modalTakeAttendancePhotos .modal-footer').show();
+			$('#modalTakeAttendancePhotos #camera_btn').hide();
+
+			const myCamera = document.querySelector('#modalTakeAttendancePhotos #my_camera video');
+
+			const canvas  = document.createElement('canvas');
+			const context = canvas.getContext('2d');
+
+			canvas.width  = myCamera.videoWidth;
+			canvas.height = myCamera.videoHeight;
+			context.drawImage(myCamera, 0, 0, canvas.width, canvas.height);
+
+			const photo = canvas.toDataURL('image/png');
+			const file  = dataURLtoFile1(photo, `photo.png`);
 			
-			let next = false;
+			const reader = new FileReader();
 
-			document.querySelectorAll("#modalTakeAttendancePhotos .wraper_file").forEach(e => {
-				let inputFileX = e.querySelector('input[type=file]');
-				
-				if (inputFileX.files.length === 0 && !next) {
-					const myCamera = document.querySelector('#modalTakeAttendancePhotos #my_camera video');
-		
-					const canvas  = document.createElement('canvas');
-					const context = canvas.getContext('2d');
-		
-					canvas.width  = myCamera.videoWidth;
-					canvas.height = myCamera.videoHeight;
-					context.drawImage(myCamera, 0, 0, canvas.width, canvas.height);
-		
-					const photo = canvas.toDataURL('image/png');
-					const file  = dataURLtoFile1(photo, `photo${++counterPhoto}.png`);
-					
-					const reader = new FileReader();
+			reader.onload = function (event) {
+				const imageSrc			= event.target.result;
+				const imgElement 		= document.createElement('img');
+				imgElement.className 	= 'img-thumbnail preview_photo';
+				imgElement.src 			= imageSrc;
+				imgElement.style 		= 'width: 100%; max-width: 100%; height: 100%; position: absolute; z-index: 20;';
 
-					reader.onload = function (event) {
-						const imageSrc = event.target.result;
-						const imgElement = document.createElement('img');
-						imgElement.className = 'img-thumbnail img-preview';
-						imgElement.src = imageSrc;
-						imgElement.style = 'width: 100%; max-width: 100%; height: 100%; position: absolute; z-index: 20;';
+				document.querySelector('#modalTakeAttendancePhotos #wraper_photo').appendChild(imgElement);
+			};
 
-						e.querySelector('.place_photo').appendChild(imgElement);
-					};
+			reader.readAsDataURL(file);
 
-					reader.readAsDataURL(file);
-
-					// insert foto to input file
-					const dataTransfer = new DataTransfer();
-					dataTransfer.items.add(file);
-					inputFileX.files = dataTransfer.files;
-
-					// break looping
-					next = true;
-				}
-			})
-
-			showOrHideBtnSubmitFoto();
+			// insert foto to input file
+			const dataTransfer = new DataTransfer();
+			dataTransfer.items.add(file);
+			document.querySelector('#modalTakeAttendancePhotos #wraper_photo input[name=photo]').files = dataTransfer.files;
 		})
 
 		// Fungsi untuk mengubah data URL menjadi file
@@ -411,40 +407,14 @@
             return new File([u8arr], filename, { type: mime });
         }
 
-		// Fungsi untuk mengecek jika sudah 5 kali take foto maka munculkan button submit
-		function showOrHideBtnSubmitFoto() {
-			if (counterPhoto == 5) {
-				$('#modalTakeAttendancePhotos #submit_foto').show();
-			}
-			else {
-				$('#modalTakeAttendancePhotos #submit_foto').hide();
-			}
-		}
-
 		// retake foto
 		$('#modalTakeAttendancePhotos #retake_foto').on('click', function () {
-			counterPhoto = 0;
-
-			const wrapperFiles = document.querySelectorAll("#modalTakeAttendancePhotos .wraper_file");
-
-			wrapperFiles.forEach(e => {
-				const inputFileX = e.querySelector('input[type=file]');
-				const placeFoto = e.querySelector('.place_photo');
-
-				// Menghapus elemen gambar yang memiliki kelas .img-preview
-				const imgElements = placeFoto.querySelectorAll('.img-preview');
-				imgElements.forEach(imgElement => {
-					imgElement.remove();
-				});
-
-				// Menghapus nilai file dari input file
-				inputFileX.value = "";
-				if (inputFileX.files) {
-					inputFileX.files = null;
-				}
-			});
-
-			showOrHideBtnSubmitFoto()
+			$('#modalTakeAttendancePhotos .modal-body').removeClass('pb-4').addClass('pb-5');
+			$('#modalTakeAttendancePhotos .modal-footer').hide();
+			$('#modalTakeAttendancePhotos #camera_btn').show();
+			document.querySelector('#modalTakeAttendancePhotos #wraper_photo .preview_photo').remove();
+			document.querySelector('#modalTakeAttendancePhotos #wraper_photo input[name=photo]').value = "";
+			document.querySelector('#modalTakeAttendancePhotos #wraper_photo input[name=photo]').files = null;
 		})
 
 		/*
