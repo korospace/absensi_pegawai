@@ -36,6 +36,11 @@
 		#modalAddTask .modal-content, #modalEditTask .modal-content, #modalMapAttendance .modal-content {
 			max-width: 100% !important;
 		}
+
+		#formTakeAttendancePhoto video {
+			width: 100%;
+			max-width: 100%;
+		}
 	</style>
 
 </head>
@@ -1627,7 +1632,7 @@
 			document.querySelector("#formAttendance input[name=photo]").files = dataTransfer.files;
 
 			let form = new FormData(document.querySelector('#formAttendance'));
-			form.set("csrf_attend", "a3b1878d6218db944f23b6c7ff94e4dc");
+			form.set("csrf_attend", $.cookie("_wtf"));
 
 			showLoadingSpinner();
 		

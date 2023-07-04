@@ -360,8 +360,8 @@
 			});
 
 			google.maps.event.addListener(myMarker, 'dragend', function(evt) {
-				$('#formMapCoordinate #latitude').val(evt.latLng.lat().toFixed(7));
-				$('#formMapCoordinate #longitude').val(evt.latLng.lng().toFixed(7));
+				$('#formMapCoordinate #latitude').val(evt.latLng.lat());
+				$('#formMapCoordinate #longitude').val(evt.latLng.lng());
 				new google.maps.Circle({
 					center: { lat: 0, lng: 0 },
 					map
@@ -489,6 +489,9 @@
 						}
 					})
 
+					form.set("max_distance_attendance", form.get("max_distance_attendance") > 0 ? form.get("max_distance_attendance") : form.get("max_distance_attendance").slice(1));
+					form.set("latitude_attendance", parseFloat(form.get("latitude_attendance")).toFixed(20));
+					form.set("longitude_attendance", parseFloat(form.get("longitude_attendance")).toFixed(20));
 					form.set("days_attendance", dayValue.slice(0, -1));
 
 					$.ajax({
@@ -503,6 +506,7 @@
 						},
 						success:function(data) {
 							hideLoadingSpinner();
+							getConfig();
 							showToast("config successfully <b>updated..!</b>",'success');
 						},
 						error:function(data) {

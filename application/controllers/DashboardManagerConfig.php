@@ -140,16 +140,16 @@ class DashboardManagerConfig extends CI_Controller {
 
 		$this->form_validation->set_rules(
 			'latitude_attendance','Latitude',
-			'max_length[11]',
+			'max_length[50]',
 			array(
-				'max_length'=> '%s maxinal 50 char',
+				'max_length'=> '%s maximal 50 char',
 			)
 		);
 		$this->form_validation->set_rules(
 			'longitude_attendance','Longitude',
-			'max_length[11]',
+			'max_length[50]',
 			array(
-				'max_length'=> '%s maxinal 50 char',
+				'max_length'=> '%s maximal 50 char',
 			)
 		);
 		$this->form_validation->set_rules(

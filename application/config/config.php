@@ -460,7 +460,7 @@ $config['global_xss_filtering'] = FALSE;
 | 'csrf_regenerate' = Regenerate token on every submission
 | 'csrf_exclude_uris' = Array of URIs which ignore CSRF checks
 */
-$config['csrf_protection'] = FALSE;
+$config['csrf_protection'] = TRUE;
 $config['csrf_token_name'] = 'csrf_attend';
 $config['csrf_cookie_name'] = '_wtf';
 $config['csrf_expire'] = 4;
@@ -471,6 +471,7 @@ $config['csrf_exclude_uris'] = array(
 	'EmployeeTasks/editTask',
 	'DashboardProfile/editProfileManager',
 	'DashboardProfile/editProfileEmployee',
+	'DashboardProfile/saveAttendancePhotos',
 	'DashboardManagerConfig/editConfigMeeting',
 	'DashboardManagerConfig/editConfigAttendance',
 	'DashboardListEmployee/changeEmployeeStatus',

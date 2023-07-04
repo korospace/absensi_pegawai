@@ -231,7 +231,7 @@ class DashboardProfile extends CI_Controller {
 	{
 		$token     = isset($this->input->request_headers()['token']) ? $this->input->request_headers()['token'] : null;
         $dataToken = checkToken($token, true);
-
+		
 		$dbResponse = $this->DashboardProfile_model->saveAttendancePhotos($dataToken['data']->userId,$_FILES['photo']);
 
 		return $this->output
